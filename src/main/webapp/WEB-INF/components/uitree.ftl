@@ -1,0 +1,2 @@
+<link rel="stylesheet" type="text/css" href="${base}/resources/m45/assets/global/plugins/jstree/themes/default/style.min.css"/>
+<script type="text/javascript" charset="utf-8" src="${base}/resources/m45/assets/global/plugins/jstree/jstree.min.js"></script>

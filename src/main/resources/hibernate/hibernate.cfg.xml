@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC   "-//Hibernate/Hibernate Configuration DTD//EN"   "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+		<property name="dialect">com.ruidev.framework.dao.RuidevMySQLDialect</property>
+		<!-- <property name="show_sql">true</property> -->
+		<!-- <property name="hibernate.current_session_context_class">thread</property> -->
+		<property name="hibernate.current_session_context_class">org.springframework.orm.hibernate5.SpringSessionContext</property>
+		<property name="hibernate.transaction.coordinator_class">jdbc</property>
+		<!-- <property name="net.sf.ehcache.configurationResourceName">ehcache/ehcache.xml</property> -->
+		<!-- <property name="hibernate.generate_statistics">true</property> -->
+		<!-- <property name="hibernate.cache.provider_configuration_file_resource_path">classpath:/cache/ehcache.xml</property>
+		<property name="hibernate.cache.use_structured_entries">true</property>
+		<property name="hibernate.cache.use_second_level_cache">true</property>
+		<property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
+		<property name="hibernate.cache.use_query_cache">true</property> -->
+		<!-- <property name="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory</property> -->
+		<!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
+		<property name="hibernate.format_sql">true</property>
+		<property name="hibernate.connection.SetBigStringTryClob">true</property>
+		<property name="hibernate.temp.use_jdbc_metadata_defaults">false</property>
+		<!-- <property name="hibernate.search.default.directory_provider">org.hibernate.search.store.impl.FSDirectoryProvider</property>
+		<property name="hibernate.search.default.indexBase">D:\data\indexs</property> -->  
+		<!-- <property name="hibernate.multiTenancy">SCHEMA</property>
+		<property name="hibernate.multi_tenant_connection_provider">com.uiworks.appstore.multitenancy.ConnectionProvider</property>
+		<property name="hibernate.tenant_identifier_resolver">com.uiworks.appstore.multitenancy.IdentifierResolver</property> -->
+	</session-factory>
+</hibernate-configuration>

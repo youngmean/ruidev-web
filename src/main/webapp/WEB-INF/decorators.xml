@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<decorators defaultdir="/WEB-INF/layouts/">
+	<excludes>
+		<pattern>/user/login</pattern>
+		<pattern>/public/*</pattern>
+		<pattern>/resources/*</pattern>
+		<pattern>/index.html</pattern>
+		<pattern>*.shtml*</pattern>
+		<pattern>*.jsp*</pattern>
+	</excludes>
+	<decorator name="default" page="m45.ftl">
+		<pattern>/*</pattern>
+	</decorator>
+	<decorator name="iniframe" page="iniframe.ftl">
+		<pattern>*.iframe</pattern>
+	</decorator>
+	<decorator name="blank" page="">
+		<pattern>*.shtml*</pattern>
+	</decorator>
+	<decorator name="blank" page="">
+		<pattern>/</pattern>
+	</decorator>
+</decorators>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd 
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.0.xsd">
+		
+	<context:annotation-config/>
+	<!-- add app base package to scan here -->
+	
+	<!-- end -->
+	<context:component-scan base-package="com.ruidev"/>
+	<aop:aspectj-autoproxy/>
+	
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:database/jdbc.properties" />
+	</bean>
+	
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">          
+	    <property name="driverClass" value="${jdbc.driver}"/>          
+	    <property name="jdbcUrl" value="${jdbc.url}"/>          
+	    <property name="user" value="${jdbc.username}"/>          
+	    <property name="password" value="${jdbc.password}"/> 
+	    <property name="initialPoolSize" value="${jdbc.initialPoolSize}"/>     
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}"/>     
+		<property name="maxIdleTime" value="${jdbc.maxIdleTime}"/>
+		<property name="maxStatements" value="${jdbc.maxStatements}"/>
+		<property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}"/>
+	</bean>
+	
+	<bean id="cacheManagerFactory" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" p:configLocation="classpath:/cache/ehcache.xml" p:shared="true"/>
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cacheManager-ref="cacheManagerFactory"/>
+	<cache:annotation-driven/>
+	
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan">
+		    <list>
+				<value>com.ruidev.framework.user</value>
+				<value>com.ruidev.**.entity</value>
+				<!-- add app entity packages to scan here -->
+				<!-- end -->
+			</list>
+		</property>
+		 <property name="entityInterceptor">
+            <bean class="com.ruidev.framework.dao.WebResourceInterceptor"></bean>
+        </property>
+		<property name="configLocations">
+			<list>
+				<value>classpath:/hibernate/hibernate.cfg.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- transaction -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager"
+		abstract="false" lazy-init="default" autowire="default">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" propagation="REQUIRED"/>
+			<tx:method name="find*" read-only="true" propagation="REQUIRED"/>
+			<tx:method name="load*" read-only="true" propagation="REQUIRED"/>
+			<tx:method name="set*" propagation="NEVER" />
+			<tx:method name="*" propagation="REQUIRED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<aop:config proxy-target-class="true">
+		<!-- add app advisor here -->
+		
+		<!-- end -->
+		<aop:advisor pointcut="execution(* com.ruidev..*..*Bo.*(..))" advice-ref="txAdvice" />
+	</aop:config>
+	<!-- transaction end -->
+ </beans>

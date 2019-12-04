@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.ui.theme" value="simple" />
+	<constant name="struts.ui.templateDir" value="template" />
+	<constant name="struts.multipart.maxSize" value="5242880" />
+	<include file="struts-default.xml" />
+	<constant name="struts.enable.SlashesInActionNames" value="true" />
+	<constant name="struts.mapper.alwaysSelectFullNamespace" value="false" />
+	<constant name="struts.patternMatcher" value="regex" />
+	<constant name="struts.freemarker.manager.classname" value="com.ruidev.framework.freemarker.manager.RuiDevFreemarkerManager" />
+	<!-- <constant name="struts.objectFactory.spring.autoWire.alwaysRespect" value="true" /> -->
+	
+	<package name="ruidev-base-default" extends="json-default">
+		<result-types>
+			<result-type name="freemarker" class="org.apache.struts2.views.freemarker.FreemarkerResult" default="true" />
+		</result-types>
+		<interceptors>
+			<interceptor name="permissionInterceptor" class="com.ruidev.framework.web.interceptor.PermissionInterceptor"/>
+			<interceptor name="crudActionInterceptor" class="com.ruidev.framework.web.interceptor.CrudActionInterceptor">
+				<param name="includeMethods">(?i).*list.*,(?i).*search.*</param>
+			</interceptor>
+			<interceptor-stack name="ruidev-base-stack">
+				<interceptor-ref name="json"/>
+				<interceptor-ref name="defaultStack"/>
+				<interceptor-ref name="permissionInterceptor"/>
+				<interceptor-ref name="crudActionInterceptor"/>
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="ruidev-base-stack" />
+		<default-action-ref name="system-page-not-found"/>
+		<global-results>
+			<result name="error">/WEB-INF/pages/error.ftl</result>
+			<result name="500">/WEB-INF/pages/500.ftl</result>
+			<result name="input">/WEB-INF/pages/${dataType}.ftl</result>
+			<result name="403">/WEB-INF/pages/403.ftl</result>
+			<result name="404">/WEB-INF/pages/404.ftl</result>
+			<result name="410">/WEB-INF/pages/410.ftl</result>
+			<result name="download" type="stream">
+				<param name="contentType">application/octet-stream</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${downloadFileName}"</param>
+				<param name="bufferSize">4096</param>
+			</result>
+			<result name="target">${target}</result>
+			<result name="json">/WEB-INF/pages/json.ftl</result>
+			<result name="xml">/WEB-INF/pages/xml.ftl</result>
+			<result name="jsonp">/WEB-INF/pages/jsonp.ftl</result>
+			<result name="login">/WEB-INF/content/user/login.ftl</result>
+			<result name="user">/WEB-INF/content/user/user.ftl</result>
+			<result name="redirect" type="redirect">${target}</result>
+		</global-results>
+		<global-exception-mappings>
+			<exception-mapping exception="java.lang.Exception" result="exception" />
+		</global-exception-mappings>
+		<action name="system-page-not-found">
+			<result type="dispatcher">/WEB-INF/pages/404.ftl</result>
+		</action>
+	</package>
+	
+	<package name="ruidev-default" namespace="/"  extends="ruidev-base-default"/>
+	<!--
+	<package name="ruidev-language" namespace="/lang" extends="ruidev-default">
+		<action name="*" class="languageAction" method="{1}">
+		    <result name="success" type="redirect">/user/index</result>
+		</action>
+	</package>
+	-->
+</struts>
