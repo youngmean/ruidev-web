@@ -62,8 +62,8 @@
 							<td>${(conf.code)!}</td>
 							<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${(conf.value)!}</td>
 							<td class="center">
-								<a href="edit?id=${(conf.id?c)!}" class="btn btn-white btn-sm"><i class="fa fa-edit"></i>编辑</a>
-								<a href="delete?id=${(conf.id?c)!}" class="btn btn-white btn-sm btn_delete"><i class="fa fa-remove"></i>删除</a>
+								<a href="${base}/admin/conf/edit?id=${(conf.id?c)!}" class="btn btn-white btn-sm"><i class="fa fa-edit"></i>编辑</a>
+								<a href="${base}/admin/conf/delete?id=${(conf.id?c)!}" class="btn btn-white btn-sm btn_delete"><i class="fa fa-remove"></i>删除</a>
 							</td>
 						</tr>
 					</#list>

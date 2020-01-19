@@ -99,8 +99,11 @@ public class BeanUtils4Web {
 		if (met != null) {
 			Object[] realParams = new Object[params.length];
 			for (int _i = 0; _i < params.length; _i++) {
-				if (paramTypes[_i] == String.class) {
-					realParams[_i] = "" + params[_i];
+				Object paramI = params[_i];
+				if (paramTypes[_i] == paramI.getClass()) {
+					realParams[_i] = paramI;
+				}else if (paramTypes[_i] == String.class) {
+					realParams[_i] = "" + paramI;
 				}else if (paramTypes[_i] == Object[].class) {
 					realParams[_i] = new Object[] {params[_i]};
 				} else {

@@ -307,7 +307,7 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
      */
     protected void addExcludeProperty(String... exprs){
     	String actionName = ServletActionContext.getActionMapping().getName();
-    	boolean isList = actionName.toLowerCase().contains("list") || actionName.toLowerCase().contains("search");
+    	boolean isList = actionName.toLowerCase().contains("list") || actionName.toLowerCase().contains("search") || (returnObject != null && returnObject instanceof Collection);
     	for(String expr : exprs){
     		if(showDetailInfo == 1){
     			if(isList){

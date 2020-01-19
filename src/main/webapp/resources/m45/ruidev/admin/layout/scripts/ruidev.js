@@ -264,7 +264,7 @@ var R={
 		if(R['__'+_action+'PageInit']){
 			R['__'+_action+'PageInit']();
 		}
-		if(_action != 'edit'){
+		if(_action != 'edit' && _action != 'add'){
 			R._showEditMask(false);
 		}
 	},
@@ -333,7 +333,7 @@ var R={
 		//R.showSidebar(true);
 	},
 	_elementPrefix: '#_tab_main_body .tab-pane.active ',
-	_tabTitlePrefix: '#_tab_main_body .nav-tabs li.active ',
+	_tabTitlePrefix: '#_tab_main_body .nav-tabs li.active[role=presentation] ',
 	__getComponent:function(comp){
 		return jQuery(R._elementPrefix + '.rd_'+comp);
 	},
@@ -1221,9 +1221,17 @@ var R={
 		//去除标题
 		if(conf.notitle){
 			box.find('.modal-title').css('display', 'none');
-			modalBody.css({height: '100%'});
+			if(conf.buttons){
+				modalBody.css({height: '100% - 65px'});
+			}else{
+				modalBody.css({height: '100%'});
+			}
 		}else{
-			modalBody.css({height: 'calc(100% - 55px)'});
+			if(conf.buttons){
+				modalBody.css({height: 'calc(100% - 120px)'});
+			}else{
+				modalBody.css({height: 'calc(100% - 55px)'});
+			}
 		}
 		modalBody.css({'box-sizing': 'border-box'});
 		if(conf.bodyStretch){
