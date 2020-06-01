@@ -104,6 +104,12 @@ public class ActionPermissionUtil {
 	 * @return
 	 */
 	public static String getPermissionStrForCurrentRequest() {
+		String reqUrl = getActionUriForCurrentRequest();
+		String permissionStrs = getPermissionByPath(reqUrl);
+		return permissionStrs;
+	}
+	
+	public static String getActionUriForCurrentRequest() {
 		String path = ServletActionContext.getRequest().getRequestURI();
 		path = path.substring(ServletActionContext.getRequest().getContextPath().length());
 		String nameSpace = path.substring(0, path.lastIndexOf("/") + 1);
@@ -114,8 +120,7 @@ public class ActionPermissionUtil {
 			action = action.substring(0, dotIndex);
 		}
 		String reqUrl = CommonUtil.combineStrings(nameSpace, action);
-		String permissionStrs = getPermissionByPath(reqUrl);
-		return permissionStrs;
+		return reqUrl;
 	}
 	
 	public static Boolean hasPermissionForRequest(String nameSpace, String action){
@@ -133,6 +138,10 @@ public class ActionPermissionUtil {
 	public static Boolean hasPermissionForRequest(String nameSpace, String action, IUserSessionInfo userInfo){
 		String reqUrl = CommonUtil.combineStrings(nameSpace, action).replaceAll("\\/+", "/");
 		String permissionStrs = getPermissionByPath(reqUrl);
+		if(StringUtils.isEmpty(permissionStrs)) {
+			reqUrl = CommonUtil.combineStrings(nameSpace, "*").replaceAll("\\/+", "/");
+			permissionStrs = getPermissionByPath(reqUrl);
+		}
 		if(PERMISSION_ANON.equals(permissionStrs) || "/".equals(reqUrl)){
 			return true;
 		}

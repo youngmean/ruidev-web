@@ -1,6 +1,7 @@
 package com.ruidev.framework.dao;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -8,13 +9,16 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.hibernate.transform.Transformers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.ruidev.framework.constant.BaseConstants;
+import com.ruidev.framework.entity.AssignedIdCrudEntity;
 import com.ruidev.framework.entity.CrudEntity;
 import com.ruidev.framework.entity.CrudTenantEntity;
 import com.ruidev.framework.util.CommonUtil;
@@ -127,6 +131,7 @@ public class HibernateProxy {
 		return query.list();
 	}
 
+	@SuppressWarnings("deprecation")
 	public <T> List<T> getListByPagination(String sql, int type, Object... params) throws Exception {
 		Query<T> query = null;
 		Query<?> queryCount = null;
@@ -135,13 +140,27 @@ public class HibernateProxy {
 		String finalSQL = RequestContext.getHsql(sql).replaceAll("\\s{1,}", " ").trim();
 		finalSQL = HSqlUtil.getJPAStyledHSql(finalSQL);
 		if (type == 1) {
-			query = session.createQuery(finalSQL);
+			List<String> onlyFetchProps = RequestContext.getOnlyFetchProperties();
+			if(RequestContext.getTransformerClass() != null && onlyFetchProps != null && finalSQL.trim().startsWith("from")) {
+				List<String> props = new ArrayList<String>();
+				for(String prop : onlyFetchProps) {
+					props.add(CommonUtil.combineStrings(prop, " as ", prop));
+				}
+				finalSQL = CommonUtil.combineStrings("select ", Strings.join(props, ','), " ", finalSQL);
+				query = session.createQuery(finalSQL).setResultTransformer(Transformers.aliasToBean(RequestContext.getTransformerClass()));
+			}else {
+				query = session.createQuery(finalSQL);
+			}
 			if(!RequestContext.getNoCount()) {
 				String countSQL = "select count(id) " + finalSQL;
 				if (!finalSQL.trim().toLowerCase().startsWith("from ")) {
-					String columnSql = finalSQL.substring(0, finalSQL.toLowerCase().indexOf("from")) .replace("select", "").replaceAll("\\s", "");
+					String columnSql = finalSQL.substring(0, finalSQL.toLowerCase().indexOf("from")) .replace("select", "").trim();
 					String[] columns = columnSql.split(",");
-					countSQL = CommonUtil.combineStrings("select count(", columns[0], ") ", finalSQL.substring(finalSQL.toLowerCase().indexOf("from")));
+					String firstCol = columns[0];
+					if(firstCol.contains(" ")) {
+						firstCol = firstCol.substring(0, firstCol.indexOf(" "));
+					}
+					countSQL = CommonUtil.combineStrings("select count(", firstCol, ") ", finalSQL.substring(finalSQL.toLowerCase().indexOf("from")));
 				}
 				queryCount = getSession().createQuery(countSQL);
 			}

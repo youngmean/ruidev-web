@@ -12,6 +12,7 @@ import com.ruidev.framework.annotations.UserDataEntity;
 import com.ruidev.framework.constant.BaseConstants;
 import com.ruidev.framework.entity.CrudEntity;
 import com.ruidev.framework.entity.CrudTenantEntity;
+import com.ruidev.framework.exception.BizException;
 import com.ruidev.framework.util.CommonUtil;
 import com.ruidev.framework.util.LoginContext;
 import com.ruidev.framework.util.RequestContext;
@@ -286,4 +287,7 @@ public abstract class EntityBo<E extends CrudEntity> extends GenericBo {
 		return entityClass;
 	}
 	
+    public void throwBizException(String...strings) throws BizException {
+    	throw new BizException(CommonUtil.combineStrings(strings));
+    }	
 }

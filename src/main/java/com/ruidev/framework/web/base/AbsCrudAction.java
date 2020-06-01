@@ -180,7 +180,8 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
         return downloadFileName;
     }
     
-    protected ReturnData getReturnData() {
+    @SuppressWarnings({ "rawtypes" })
+	protected ReturnData getReturnData() {
     	boolean _success = true;
     	Map<String, List<String>> fieldErrors = getFieldErrors();
     	if(fieldErrors != null && fieldErrors.size() > 0){
@@ -196,6 +197,24 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
     	}else{
 			returnObject = getReturnObject();
 		}
+    	List<String> onlyFetchProps = RequestContext.getOnlyFetchProperties();
+		if(RequestContext.getTransformerClass() == null && onlyFetchProps != null) {
+			if(returnObject != null) {
+				if(returnObject instanceof List) {
+					try {
+						returnObject = CommonUtil.copyPropertiesBatch((List)returnObject, null, onlyFetchProps.toArray(new String[] {}));
+					} catch (Exception e) {
+						log.error("Faile to copy props: {}", e.getMessage());
+					}
+				}else {
+					try {
+						returnObject = CommonUtil.copyProperties(returnObject, null, onlyFetchProps.toArray(new String[] {}));
+					} catch (Exception e) {
+						log.error("Faile to copy props: {}", e.getMessage());
+					}
+				}
+			}
+		}
     	if(showDetailInfo == 1){
             HashMap<String, Object> result = new HashMap<String, Object>();
             result.put("success", _success);
@@ -204,6 +223,9 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
             	result.put("total", total);
             }
             result.put("data", returnObject);
+            if(!StringUtils.isEmpty(tip)) {
+            	result.put("tip", tip);
+            }
             if(showPageInfo == 1) {
             	Map<String, Object> page = new HashMap<String, Object>();
             	page.put("index", RequestContext.getIndex());
@@ -982,6 +1004,17 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 			}
 		}
 	}
+	
+	public void assertNullOrEmpty(Object param, String paramName, int maxLen) throws Exception{
+		assertNullOrEmpty(param, paramName);
+		if(param.toString().length() > maxLen) {
+			throw new BizException(CommonUtil.combineStrings("参数【", paramName,"】长度不能超过",maxLen+"","位"), ErrorType.INVALID_INPUT);
+		}
+	}
+	
+	public void throwBizException(String...strings) throws BizException {
+    	throw new BizException(CommonUtil.combineStrings(strings));
+    }
 
 	public String getRequestMethod() {
 		requestMethod = request.getMethod().toUpperCase();

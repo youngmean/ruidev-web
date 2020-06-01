@@ -407,6 +407,17 @@ public class DateTimeUtil {
 	}
 
 	/**
+	 * 获取两个时间的天数差
+	 * 
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static long getAbsDaysBetweenDates(Date d1, Date d2) {
+		return getAbsHoursBetweenDates(d1, d2) / 24;
+	}
+	
+	/**
 	 * 获取两个时间的分钟差
 	 * 
 	 * @param d1

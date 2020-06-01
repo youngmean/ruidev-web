@@ -334,6 +334,50 @@ public class CommonUtil {
     		org.springframework.beans.BeanUtils.copyProperties(src, target, fields);
     	}
     }
+    
+    public static Object copyPropertiesBatch(List srcList, List targetList, String ...properties) throws Exception{
+    	if(targetList == null) {
+    		targetList = new ArrayList<Object>(); 
+    	}else {
+    		targetList.clear();
+    	}
+    	for(Object src : srcList) {
+    		targetList.add(copyProperties(src, null, properties));
+    	}
+    	return targetList;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Object copyProperties(Object src, Object target, String ...properties) throws Exception{
+    	Class<?> srcClass = src.getClass();
+    	if(target == null) {
+    		target = srcClass.newInstance();
+    	}
+    	if(properties.length == 0) {
+    		org.springframework.beans.BeanUtils.copyProperties(src, target);
+    		return target;
+    	}
+    	for(String prop : properties) {
+    		if(StringUtils.isEmpty(prop.trim()))continue;
+    		if(src instanceof Map) {
+    			((Map)target).put(prop, ((Map)src).get(prop));
+    			continue;
+    		}
+    		String methodName = CommonUtil.combineStrings(prop.substring(0, 1).toUpperCase(), prop.substring(1));
+    		Method srcGet = null;
+			try {
+				srcGet = srcClass.getMethod(CommonUtil.combineStrings("get", methodName));
+			} catch (Exception e) {
+				log.error("Faile to copy prop: {}", e.getMessage());
+			}
+			if(srcGet == null)continue;
+    		Object val = srcGet.invoke(src);
+    		if(val != null) {
+    			BeanUtils.copyProperty(target, prop, val);
+    		}
+    	}
+    	return target;
+    }
 
     /**
      * 生成图片缩略图

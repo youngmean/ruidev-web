@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -33,6 +34,24 @@ public class RequestContext {
 	private static final ThreadLocal<ArrayList<Object>> params = new ThreadLocal<ArrayList<Object>>();
 	private static final ThreadLocal<ArrayList<String>> groupbys = new ThreadLocal<ArrayList<String>>();
 	private static final ThreadLocal<Map<String, String>> orderbys = new ThreadLocal<Map<String, String>>();
+	private static final ThreadLocal<Class<?>> transformer_class = new ThreadLocal<Class<?>>();
+	private static final ThreadLocal<List<String>> only_fetch_properties = new ThreadLocal<List<String>>();
+	
+	public static void setTransformerClass(Class<?> clazz) {
+		transformer_class.set(clazz);
+	}
+	
+	public static Class<?> getTransformerClass() {
+		return transformer_class.get();
+	}
+	
+	public static void setOnlyFetchProperties(String... props) {
+		only_fetch_properties.set(Arrays.asList(props));
+	}
+	
+	public static List<String> getOnlyFetchProperties() {
+		return only_fetch_properties.get();
+	}
 	
 	public static void setNoCount(boolean flag) {
 		noCount.set(flag);
@@ -179,6 +198,8 @@ public class RequestContext {
 			return;
 		}
 		_filters.clear();
+		transformer_class.remove();
+		only_fetch_properties.remove();
 	}
 	
 	public static void clearParams() {
