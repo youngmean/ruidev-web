@@ -70,7 +70,7 @@ public class PermissionInterceptor extends AbstractInterceptor {
         		LoginContext.setCurrentLoginUserTemp(false);
         	}
 			Boolean hasP = ActionPermissionUtil.hasPermissionForCurrentRequest();
-			if(hasP){
+			if(hasP == null || hasP){
 				return actionInvocation.invoke();
 			}
 			AbsCrudAction<?> _action = (AbsCrudAction)action;

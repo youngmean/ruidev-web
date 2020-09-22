@@ -192,5 +192,4 @@ public class UserBo extends EntityBo<RuidevUser>{
 		}
 		super.delete(id);
 	}
-    
 }

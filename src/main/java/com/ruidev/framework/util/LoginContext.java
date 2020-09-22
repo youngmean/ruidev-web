@@ -111,6 +111,18 @@ public class LoginContext
         return false;
     }
     
+    public static String getCurrentUserRoleCode() {
+    	IUserSessionInfo loginUser = getCurrentLoginUser();
+        if (loginUser != null) {
+        	IUser user = loginUser.getUser();
+        	if(user instanceof RuidevUser){
+        		RuidevUser ru = (RuidevUser)user;
+        		return ru.isManager() ? ru.getRoleCode() : null;
+        	}
+        }
+        return null;
+    }
+    
     /**
      * 判断当前登录用户是否为客户管理员(租户)
      * @return

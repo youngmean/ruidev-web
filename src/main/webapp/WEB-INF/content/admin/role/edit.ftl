@@ -9,25 +9,28 @@
 		</div>
 		<div class="portlet-body form">
 			<form class="form-horizontal" method="post" action="save">
-				<@s.hidden name="object.id"/>
-				<div class="form-group required">
-					<label class="control-label">角色名称：</label> <@s.textfield
-					name="object.name" cssClass="form-control required"/>
+				<div class="form-group form-md-line-input">
+					<@s.hidden name="object.id"/>
+					<label class="control-label col-md-2">角色名称</label>
+					<div class="col-md-6">
+						<@s.textfield name="object.name" class="form-control" ruirequired=true/>
+						<span class="help-block">请输入角色名称</span>
+					</div>
 				</div>
-				<div class="form-group">
-					<label class="control-label">角色描述</label> <@s.textarea
-					name="object.description" cssClass="form-control"/>
+				<div class="form-group form-md-line-input">
+					<label class="control-label col-md-2">角色代码</label>
+					<div class="col-md-6">
+						<@s.textfield name="object.code" class="form-control" ruirequired=true/>
+						<span class="help-block">请输入角色代码</span>
+					</div>
 				</div>
-				<#list operations as o>
-				<div class="form-group">
-					<label class="control-label">${o.name}</label> <#list o.permissions
-					as p> <input id="object_permissionIds_${p.id}" type="checkbox"
-						name="object.permissionIds" value="${p.id}"<#if
-					object.permissionIds?seq_contains(p.id)> checked="checked" </#if>
-					/> <@s.label for="object_permissionIds_${p.id}" value=p.name/>
-					</#list>
+				<div class="form-group form-md-line-input">
+					<label class="control-label col-md-2">角色描述</label>
+					<div class="col-md-6">
+						<@s.textarea name="object.description" class="form-control"/>
+						<span class="help-block">请输入角色描述</span>
+					</div>
 				</div>
-				</#list>
 				<div class="form-actions noborder">
 					<div class="btn-group pull-right">
 						<button type="button" class="btn btn-circle green-haze btn_save">

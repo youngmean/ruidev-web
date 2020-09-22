@@ -1186,8 +1186,12 @@ var R={
 		}
 	},
 	modal:function(conf){
-		if(conf=='close' && R._modalBox){
-			R._modalBox.modal('hide');
+		if(conf=='close'){
+			if(!R._modalBox)return;
+			var _modalBox = R._modalBox.pop();
+			if(_modalBox){
+				_modalBox.modal('hide');
+			}
 			return;
 		}
 		if(typeof conf == 'string'){
@@ -1203,7 +1207,10 @@ var R={
 		var opts = {
 			title: conf.title||'',
 			message: conf.html||'loading...',
-			className: 'ruidev-modal-window'
+			className: 'ruidev-modal-window',
+			onEscape: function(e){
+				R._modalBox.pop();
+			}
 		};
 		if(!conf.title){
 			conf.notitle = true;
@@ -1292,8 +1299,15 @@ var R={
 					}, 1000);
 				}
 			});
+		}else{
+			if(conf.onLoad){
+				conf.onLoad(conf.html, body);
+			}else if(conf.formatHtml){
+				html = conf.formatHtml(conf.html, body);
+			}
 		}
-		R._modalBox = box;
+		R._modalBox = R._modalBox||[];
+		R._modalBox.push(box);
 	},
 	notify:function(title, txt){
 		var settings = {

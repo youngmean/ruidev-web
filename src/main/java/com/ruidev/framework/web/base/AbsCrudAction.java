@@ -551,7 +551,7 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 
     @SuppressWarnings("unchecked")
     protected <T> T getSessionAttribute(String attr) {
-        return (T) request.getSession().getAttribute(attr);
+        return (T) request.getSession(false).getAttribute(attr);
     }
 
     protected void removeSessionAttribute(String attr) {
@@ -799,6 +799,20 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
         	String savePath = getSavePath();
 			String realPath = getPathByActionPathAndUserTenantUploadFile(savePath, uploadFileFileName, uploadFile);
 			CommonUtil.copyOrCreateFile(uploadFile, new File(realPath));
+			String url = realPath.substring(savePath.length() - uploadPath.length());
+			if(!url.startsWith("/")){
+				url = "/" + url;
+			}
+			return url.replaceAll("/+", "/");
+		}
+    	return null;
+    }
+    
+    protected String saveUploadFile(File file, String fileName){
+    	if (file != null) {
+        	String savePath = getSavePath();
+			String realPath = getPathByActionPathAndUserTenantUploadFile(savePath, fileName, file);
+			CommonUtil.copyOrCreateFile(file, new File(realPath));
 			String url = realPath.substring(savePath.length() - uploadPath.length());
 			if(!url.startsWith("/")){
 				url = "/" + url;

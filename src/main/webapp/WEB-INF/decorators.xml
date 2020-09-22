@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <decorators defaultdir="/WEB-INF/layouts/">
 	<excludes>
-		<pattern>/user/login</pattern>
+		<pattern>/user/login*</pattern>
 		<pattern>/public/*</pattern>
 		<pattern>/resources/*</pattern>
 		<pattern>/index.html</pattern>

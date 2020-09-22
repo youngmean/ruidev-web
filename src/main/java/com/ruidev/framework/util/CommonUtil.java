@@ -72,10 +72,12 @@ public class CommonUtil {
      * @param strings
      * @return
      */
-    public static String combineStrings(String... strings) {
+    public static String combineStrings(Object... objs) {
     	StringBuffer buffer = new StringBuffer();
-    	for(String string : strings){
-    		buffer.append(string);
+    	for(Object obj : objs){
+    		if(obj != null) {
+    			buffer.append(obj.toString());
+    		}
     	}
     	return buffer.toString();
     }
@@ -336,6 +338,7 @@ public class CommonUtil {
     }
     
     public static Object copyPropertiesBatch(List srcList, List targetList, String ...properties) throws Exception{
+    	if(srcList == null)return null;
     	if(targetList == null) {
     		targetList = new ArrayList<Object>(); 
     	}else {

@@ -1,15 +1,17 @@
 package com.ruidev.framework.user;
 
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -37,14 +39,18 @@ public class RuidevUser extends CrudTenantEntity implements IUser{
 	protected String phone;
 	protected String description;
 	@Transient
-	protected List<RuidevRole> roles;
+	protected String roleCode;
+	protected Long roleId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "roleId", insertable = false, updatable = false)
+	protected RuidevRole role;
 	@Transient
 	protected String oldPass;
 	@Column(name = "user_status", length = 1)
 	@NotNull
 	protected String status = UserStatus.NORMAL.getCode();
 	@NotNull
-	@Column(name = "user_level", length = 4)
+	@Column(name = "user_level", length = 1, updatable = false)
 	protected Integer userLevel = RoleLevel.ROLE_USER.getLevel();
 	
 	public String getUsername() {
@@ -127,10 +133,6 @@ public class RuidevUser extends CrudTenantEntity implements IUser{
 		this.userLevel = userLevel;
 	}
 	
-	public void setUserLevel(RoleLevel userLevel) {
-		this.userLevel = userLevel.getLevel();
-	}
-	
 	/**
 	 * 用户角色级别名称
 	 * @return
@@ -145,6 +147,10 @@ public class RuidevUser extends CrudTenantEntity implements IUser{
 			return lvl.name().toLowerCase();
 		}
 		return null;
+	}
+	
+	public boolean isManager() {
+		return RoleLevel.ROLE_MANAGER.getLevel().equals(getUserLevel());
 	}
 
 	public String getOldPass() {
@@ -161,6 +167,33 @@ public class RuidevUser extends CrudTenantEntity implements IUser{
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public String getRoleCode() {
+		if(StringUtils.isEmpty(roleCode) && roleId != null && role != null) {
+			roleCode = role.getCode();
+		}
+		return roleCode;
+	}
+
+	public void setRoleCode(String roleCode) {
+		this.roleCode = roleCode;
+	}
+
+	public Long getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
+	}
+
+	public RuidevRole getRole() {
+		return role;
+	}
+
+	public void setRole(RuidevRole role) {
+		this.role = role;
 	}
 
 }

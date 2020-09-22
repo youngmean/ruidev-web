@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.ruidev.framework.constant.BaseConstants;
-import com.ruidev.framework.entity.AssignedIdCrudEntity;
 import com.ruidev.framework.entity.CrudEntity;
 import com.ruidev.framework.entity.CrudTenantEntity;
 import com.ruidev.framework.util.CommonUtil;
@@ -224,7 +224,15 @@ public class HibernateProxy {
 	}
 
 	public Session getSession() {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = null;
+		String dataSourceName = RequestContext.getCurrentDataSourceName();
+		SessionFactory sf = null;
+		if(!StringUtils.isEmpty(dataSourceName)) {
+			sf = (SessionFactory) BaseConstants.SPRING_APPLICATION_CONTEXT.getBean(dataSourceName);
+		}else {
+			sf = sessionFactory;
+		}
+		session = sf.getCurrentSession();
 		return session;// .openSession();
 	}
 

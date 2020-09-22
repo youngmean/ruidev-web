@@ -2,6 +2,7 @@ package com.ruidev.framework.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -99,6 +100,40 @@ public class ActionPermissionUtil {
 		return hasPermissionForRequest(nameSpace, action);
 	}
 	
+	public static List<String> getPermissionRolesForCurrentRequest() {
+		String permissionStr = getPermissionStrForCurrentRequest();
+		return getPermissionRolesForPermissionStr(permissionStr);
+	}
+	
+	public static List<String> getPermissionRolesForPermissionStr(String permissionStr) {
+		if(!StringUtils.isEmpty(permissionStr)) {
+			String[] perms = permissionStr.split(",");
+			final String ROLES_PREFIX = "roles:";
+			for(String perm : perms) {
+				if(perm.startsWith(ROLES_PREFIX)) {
+					return Arrays.asList(perm.substring(ROLES_PREFIX.length()).split(":"));
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static boolean hasRolePermissionForCurrentRequest(String roleCode) {
+		if(StringUtils.isEmpty(roleCode)) {
+			return false;
+		}
+		List<String> roleCodes = getPermissionRolesForCurrentRequest();
+		return roleCodes != null && roleCodes.contains(roleCode);
+	}
+	
+	public static boolean hasRolePermissionForPermissionStr(String roleCode, String permissionStr) {
+		if(StringUtils.isEmpty(roleCode)) {
+			return false;
+		}
+		List<String> roleCodes = getPermissionRolesForPermissionStr(permissionStr);
+		return roleCodes != null && roleCodes.contains(roleCode);
+	}
+	
 	/**
 	 * 当前请求权限描述符
 	 * @return
@@ -108,6 +143,7 @@ public class ActionPermissionUtil {
 		String permissionStrs = getPermissionByPath(reqUrl);
 		return permissionStrs;
 	}
+	
 	
 	public static String getActionUriForCurrentRequest() {
 		String path = ServletActionContext.getRequest().getRequestURI();
@@ -138,9 +174,11 @@ public class ActionPermissionUtil {
 	public static Boolean hasPermissionForRequest(String nameSpace, String action, IUserSessionInfo userInfo){
 		String reqUrl = CommonUtil.combineStrings(nameSpace, action).replaceAll("\\/+", "/");
 		String permissionStrs = getPermissionByPath(reqUrl);
+		String commonMatchUrl = CommonUtil.combineStrings(nameSpace, "*").replaceAll("\\/+", "/");
+		String commonMatchUrlPermissionStrs = getPermissionByPath(commonMatchUrl);
 		if(StringUtils.isEmpty(permissionStrs)) {
-			reqUrl = CommonUtil.combineStrings(nameSpace, "*").replaceAll("\\/+", "/");
-			permissionStrs = getPermissionByPath(reqUrl);
+			reqUrl = commonMatchUrl;
+			permissionStrs = commonMatchUrlPermissionStrs;
 		}
 		if(PERMISSION_ANON.equals(permissionStrs) || "/".equals(reqUrl)){
 			return true;
@@ -153,6 +191,12 @@ public class ActionPermissionUtil {
 				return true;
 			}
 			if(!StringUtils.isEmpty(permissionStrs)){
+				if(LoginContext.isCurrentUserManager()) {
+					String roleCode = LoginContext.getCurrentUserRoleCode();
+					if(hasRolePermissionForPermissionStr(roleCode, permissionStrs) || hasRolePermissionForPermissionStr(roleCode, commonMatchUrlPermissionStrs)) {
+						return null;
+					}
+				}
 				String[] permissionStrArr = permissionStrs.split(",");
 				for(String permissionStr : permissionStrArr){
 					if(LoginContext.isCurrentUserAdmin() || PERMISSION_LOGIN.equals(permissionStr)){

@@ -12,22 +12,16 @@
 					<tr>
 						<th>#</th>
 						<th>名称</th>
-						<th>权限</th>
+						<th>代码</th>
 						<th class="list_action">&nbsp;</th>
 					</tr>
 				</thead>
 				<tbody>
-					<#list objects as object>
+					<#list (objects)! as object>
 						<tr>
 							<td>${((object_index+1)?c)!}</td>
 							<td>${(object.name)!}</td>
-							<td>
-							<#if object.permissions??>
-								<#list object.groupedPermissions?keys as key>
-									<label>${key}(<#list object.groupedPermissions[key] as item>${item}<#if item_has_next>,</#if></#list>)</label>
-								</#list>
-							</#if>
-							</td>
+							<td>${(object.code)!}</td>
 							<td class="center">
 								<a href="edit?id=${(object.id?c)!}" class="btn btn-white btn-sm"><i class="fa fa-edit"></i>&nbsp;编辑</a>
 								<a href="delete?id=${(object.id?c)!}" class="btn btn-white btn-sm btn_delete"><i class="fa fa-remove"></i>&nbsp;删除</a>

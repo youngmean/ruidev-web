@@ -30,6 +30,9 @@
 						<button type="button" class="btn btn-circle green-haze" id="btn_search">
 							<i class="fa fa-search"></i><span class="hidden-sm hidden-xs">查询</span>
 						</button>
+						<a type="button" class="btn btn-circle green-haze" href="${base}/admin/user/add?object.userLevel=1">
+							<i class="fa fa-plus"></i><span class="hidden-sm hidden-xs">添加管理员</span>
+						</a>
 					</div>
 				</div>
 			</form>

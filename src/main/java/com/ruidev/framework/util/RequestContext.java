@@ -36,6 +36,15 @@ public class RequestContext {
 	private static final ThreadLocal<Map<String, String>> orderbys = new ThreadLocal<Map<String, String>>();
 	private static final ThreadLocal<Class<?>> transformer_class = new ThreadLocal<Class<?>>();
 	private static final ThreadLocal<List<String>> only_fetch_properties = new ThreadLocal<List<String>>();
+	private static final ThreadLocal<String> current_data_source = new ThreadLocal<String>();
+	
+	public static void setCurrentDataSourceName(String dataSourceName) {
+		current_data_source.set(dataSourceName);
+	}
+	
+	public static String getCurrentDataSourceName() {
+		return current_data_source.get();
+	}
 	
 	public static void setTransformerClass(Class<?> clazz) {
 		transformer_class.set(clazz);
@@ -200,6 +209,7 @@ public class RequestContext {
 		_filters.clear();
 		transformer_class.remove();
 		only_fetch_properties.remove();
+		current_data_source.remove();
 	}
 	
 	public static void clearParams() {

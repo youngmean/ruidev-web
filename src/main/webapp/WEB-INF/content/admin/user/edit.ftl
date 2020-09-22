@@ -20,6 +20,7 @@ function beforeSubmit(){
 				<div class="form-body">
 					<div class="form-group form-md-line-input">
 						<@s.hidden name="object.id"/>
+						<@s.hidden name="object.userLevel"/>
 						<label class="control-label col-md-2">登录名</label>
 						<div class="col-md-6">
 							<#if (object.id)??>
@@ -63,6 +64,15 @@ function beforeSubmit(){
 							<span class="help-block">请再输入一次密码确认</span>
 						</div>
 					</div>
+					<#if (object.userLevel==1)!>
+					<div class="form-group form-md-line-input">
+						<label class="control-label col-md-2">账号角色</label>
+						<div class="col-md-6">
+							<@s.select name="object.roleId" list=beans.get('ruidevRoleBo', 'getUserRoles()') listKey="id" listValue="name" cssClass="form-control"/>
+							<span class="help-block">请再输入一次密码确认</span>
+						</div>
+					</div>
+					</#if>
 				</div>
 				<div class="form-actions noborder">
 					<div class="btn-group pull-right">

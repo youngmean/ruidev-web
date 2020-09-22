@@ -232,8 +232,18 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 	 */
 
 	public String exceptionWrap(Exception e, CrudAction action) {
+		return exceptionWrap(e, action, null);
+	}
+	
+	/**
+	 * 异常控制.
+	 * 
+	 * @param request
+	 */
+
+	public String exceptionWrap(Exception e, CrudAction action, String defaultResult) {
 		HttpServletRequest req = ServletActionContext.getRequest();
-		String result = "500";
+		String result = defaultResult == null ? "500" : defaultResult;
 		if (!(e instanceof BizException) && !(e instanceof SysException)) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
