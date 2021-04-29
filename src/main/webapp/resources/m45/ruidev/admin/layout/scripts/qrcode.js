@@ -1259,13 +1259,17 @@ QRBitBuffer.prototype = {
 			var qrcode	= new QRCode(options.typeNumber, options.correctLevel);
 			qrcode.addData(options.text);
 			qrcode.make();
-
+			var padding = options.padding;
+			if(typeof options.padding == 'undefined'){
+				padding = Math.round(options.width/12);
+			}
 			// create canvas element
 			var canvas	= document.createElement('canvas');
-			canvas.width	= options.width;
-			canvas.height	= options.height;
+			canvas.width	= options.width + padding*2;
+			canvas.height	= options.height + padding*2;
 			var ctx		= canvas.getContext('2d');
-
+			ctx.fillStyle = options.background;
+			ctx.fillRect(0, 0, canvas.width, canvas.height); 
 			// compute tileW/tileH based on options.width/options.height
 			var tileW	= options.width  / qrcode.getModuleCount();
 			var tileH	= options.height / qrcode.getModuleCount();
@@ -1276,10 +1280,79 @@ QRBitBuffer.prototype = {
 					ctx.fillStyle = qrcode.isDark(row, col) ? options.foreground : options.background;
 					var w = (Math.ceil((col+1)*tileW) - Math.floor(col*tileW));
 					var h = (Math.ceil((row+1)*tileW) - Math.floor(row*tileW));
-					ctx.fillRect(Math.round(col*tileW),Math.round(row*tileH), w, h);  
+					ctx.fillRect(Math.round(col*tileW)+padding,Math.round(row*tileH)+padding, w, h);  
 				}	
 			}
+			if(options.logo){
+				
+				function drawUsingArc(rect, r, conf, ctx) {
+				    ctx.beginPath();
+				    ctx.moveTo(rect.x + r, rect.y);
+				    ctx.lineTo(rect.x + rect.width - r, rect.y);
+				    ctx.arc(rect.x + rect.width - r, rect.y + r, r, Math.PI / 180 * 270, 0, false);
+				    ctx.lineTo(rect.x + rect.width, rect.y + rect.height - r);
+				    ctx.arc(rect.x + rect.width - r, rect.y + rect.height - r, r, 0, Math.PI / 180 * 90, 0, false);
+				    ctx.lineTo(rect.x + r, rect.y + rect.height);
+				    ctx.arc(rect.x + r, rect.y + rect.height - r, r, Math.PI / 180 * 90, Math.PI / 180 * 180, false);
+				    ctx.lineTo(rect.x, rect.y + r);
+				    ctx.arc(rect.x + r, rect.y + r, r, Math.PI / 180 * 180, Math.PI / 180 * 270, false);
+				    ctx.strokeStyle = conf.borderStyle||"#000";
+				    if(conf.border != 0){
+				    	ctx.lineWidth = conf.border;
+				    	ctx.stroke();
+				    }
+				    ctx.fillStyle = conf.background||"#FFF";
+				    ctx.fill();
+				    ctx.closePath();
+				}
+				
+				var img = new Image();
+				//img.style = "border-radius:12px;background-color:#FFF;";
+				img.onload=function(){
+					var logoPadding = options.logo.padding;
+					var w = options.logo.width || Math.round(options.width / 3.5);
+					var h = options.logo.height || Math.round(options.height / 3.5);
+					var _imgW = h/img.height * img.width;
+					var _imgH = w/img.width * img.height;
+					if(_imgW > _imgH){
+						_imgW = w;
+						if(_imgH > h){
+							_imgH = h;
+						}
+					}else{
+						_imgH = h;
+						if(_imgW > w){
+							_imgW = w;
+						}
+					}
+					if(typeof logoPadding == 'undefined'){
+						Math.round(logoPadding = w/10);
+					}
+					var x = Math.round((options.width - w)/2+ + padding);
+					var y = Math.round((options.height - h)/2 + padding);
+					if(options.logo.bg != false){
+						var rect = {x:x - logoPadding,y:y - logoPadding, width:w+logoPadding*2, height:h+logoPadding*2};
+						drawUsingArc(rect, Math.round(w/12), options.logo, ctx);
+					}
+					ctx.drawImage(img, Math.round(x + (w - _imgW)/2), Math.round(y + (h - _imgH)/2), Math.round(_imgW), Math.round(_imgH));
+				}
+				img.src = options.logo.src;
+			}
 			// return just built canvas
+			if(options.downloadName){
+				function downLoad(url, downloadName){
+					var oA = document.createElement("a");
+					oA.download = downloadName;// 设置下载的文件名，默认是'下载'
+					oA.href = url;
+					document.body.appendChild(oA);
+					oA.click();
+					oA.remove(); // 下载之后把创建的元素删除
+				}
+				$(canvas).css("cursor", "pointer").attr("title", options.downloadName).click(function(){
+					var url = canvas.toDataURL(options.downloadType||"image/png");
+					downLoad(url, options.downloadName);
+				});
+			}
 			return canvas;
 		}
 

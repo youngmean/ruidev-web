@@ -1322,6 +1322,7 @@ var R={
 		$.notific8(txt, settings);
 	},
 	toastr:function(msg, title, type, callback){
+		if(!window.toastr)return;
 		toastr.options={
 			"closeButton": true,
 			"positionClass": "toast-bottom-right",
@@ -1360,13 +1361,14 @@ var R={
             }
 		});
 	},
-	qr:function(text,tip){
-		var qrHeight=128,qrWidth=128;
+	qr:function(text,tip,width,height,logoConf,moreConfs){
+		var qrHeight=width||256,qrWidth=height||256;
 		var qrContainer = $("<div style='width:100%;height:100%;text-align:center'><div style='margin:0 auto;' id='_box_qr_div'></div></div>");
-		qrContainer.css({'min-height':qrHeight*1.2});
+		qrContainer.css({'min-height':qrHeight*1});
 		bootbox.dialog({
             message: qrContainer[0].outerHTML||"",
             title: tip||'',
+            size: 'large',
             buttons: {
 				success: {
 					label: LANG.ok,
@@ -1376,7 +1378,15 @@ var R={
 		});
 		var qrDiv = $('#_box_qr_div');
 		qrDiv.css({width:qrWidth, height:qrHeight});
-		qrDiv.qrcode({width:qrWidth,height:qrHeight,text:R.utf16to8(text)});
+		var conf = {width:qrWidth,height:qrHeight,text:R.utf16to8(text)};
+		conf.logo = logoConf;
+		if(moreConfs){
+			for(var p in moreConfs){
+				conf[p] = moreConfs[p];
+			}
+		}
+		console.log("Conf", conf);
+		qrDiv.qrcode(conf);
 	},
 	confirm:function(title, txt, okHandler, input){
 		if(input){

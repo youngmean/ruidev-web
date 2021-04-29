@@ -25,6 +25,7 @@ import com.opensymphony.xwork2.config.ConfigurationException;
 import com.opensymphony.xwork2.interceptor.AbstractInterceptor;
 import com.opensymphony.xwork2.interceptor.PreResultListener;
 import com.ruidev.framework.annotations.ActionEnableFilters;
+import com.ruidev.framework.annotations.ActionEnablePageFilter;
 import com.ruidev.framework.constant.AuthConstants;
 import com.ruidev.framework.constant.ErrorType;
 import com.ruidev.framework.constant.PageConstant;
@@ -89,6 +90,13 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 					doBeforePage(request, crudAction);
 				} catch (Exception e) {
 					return exceptionWrap(e, crudAction);
+				}
+			}else if(method.isAnnotationPresent(ActionEnablePageFilter.class)) {
+				if (crudAction.getIndex() != null) {
+					RequestContext.setIndex(crudAction.getIndex());
+				}
+				if (crudAction.getSize() != null) {
+					RequestContext.setSize(crudAction.getSize());
 				}
 			}
 			invocation.addPreResultListener(this);
@@ -244,25 +252,29 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 	public String exceptionWrap(Exception e, CrudAction action, String defaultResult) {
 		HttpServletRequest req = ServletActionContext.getRequest();
 		String result = defaultResult == null ? "500" : defaultResult;
+		String msg = null;
 		if (!(e instanceof BizException) && !(e instanceof SysException)) {
 			e.printStackTrace();
-			logger.error(e.getMessage());
+			logger.error(msg);
+			msg = "Server inner error";
+			action.setError(ErrorType.UNKNOWN_SYSTEM_ERROR, msg);
 		}else {
 			BaseException baseE = (BaseException)e;
+			msg = e.getMessage();
 			int errorcode = baseE.getErrorId();
 			if(errorcode != 0) {
 				req.setAttribute("errorcode", errorcode);
-				action.setError(errorcode, baseE.getMessage());
+				action.setError(errorcode, msg);
 			}
 			if("/user/login".equals(action.getActionPath())) {
 				result = "login";
 			}
 		}
 		Throwable cause = ExceptionUtils.getRootCause(e);
-		req.setAttribute("error", e.getMessage());
+		req.setAttribute("error", msg);
 		req.setAttribute("exception", e);
 		req.setAttribute("cause", cause);
-		action.addErrorMsg("tip", e.getMessage());
+		action.addErrorMsg("tip", msg);
 		if(cause != null){
 			action.addErrorMsg("cause", cause.getMessage());
 		}

@@ -21,6 +21,9 @@ import org.apache.struts2.json.DefaultJSONWriter;
 import org.apache.struts2.json.JSONException;
 import org.apache.struts2.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.yaml.snakeyaml.DumperOptions.FlowStyle;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.nodes.Tag;
 
 import com.ruidev.admin.conf.util.ConfigurationUtil;
 import com.ruidev.framework.bo.GenericBo;
@@ -77,10 +80,13 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
     protected String REDIRECT = "redirect";
     protected String DOWNLOAD = "download";
     protected String XML = "xml";
+    protected String YML = "xml";
+    protected String YAML = "xml";
     protected String TIP = "tip";
     
     //protected static JSONUtil JSON_UTIL = new JSONUtil();
     protected static XStream XSTREAM = new XStream();
+    protected static Yaml _YAML = new Yaml();
 
     public void setResultCode(String code) {
         SUCCESS = code;
@@ -90,6 +96,8 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
         DOWNLOAD = code;
         REDIRECT = code;
         XML = code;
+        YML = code;
+        YAML = code;
     }
 
     protected InputStream inputStream;
@@ -253,6 +261,19 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
         response.setCharacterEncoding("UTF-8");
         try {
 	        return XSTREAM.toXML(returnObject);
+		} catch (Exception e) {
+		}
+        return null;
+    }
+    
+    public String getYmlData() {
+    	ReturnData data = getReturnData();
+    	returnObject = data.object;
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        try {
+        	Tag rootTag = new Tag(data.success ? "success" : "error");
+	        return _YAML.dumpAs(returnObject, rootTag, FlowStyle.BLOCK);
 		} catch (Exception e) {
 		}
         return null;
@@ -662,6 +683,7 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
     	this.errorMsg.put("tip", tip);
     	this.errorMsg.put("code", code);
     	this.errorMsg.put("msg", msg);
+    	this.errorMsg.put("message", msg);
     }
     
     /**
@@ -1021,6 +1043,16 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 	
 	public void assertNullOrEmpty(Object param, String paramName, int maxLen) throws Exception{
 		assertNullOrEmpty(param, paramName);
+		if(param.toString().length() > maxLen) {
+			throw new BizException(CommonUtil.combineStrings("参数【", paramName,"】长度不能超过",maxLen+"","位"), ErrorType.INVALID_INPUT);
+		}
+	}
+	
+	public void assertNullOrEmpty(Object param, String paramName, int minLen, int maxLen) throws Exception{
+		assertNullOrEmpty(param, paramName);
+		if(param.toString().length() < minLen) {
+			throw new BizException(CommonUtil.combineStrings("参数【", paramName,"】长度不能低于",minLen+"","位"), ErrorType.INVALID_INPUT);
+		}
 		if(param.toString().length() > maxLen) {
 			throw new BizException(CommonUtil.combineStrings("参数【", paramName,"】长度不能超过",maxLen+"","位"), ErrorType.INVALID_INPUT);
 		}

@@ -10,16 +10,17 @@ public class LoginContext
 	public static final Long NO_USER_LOGIN_ID = null;
 	
     /**
-     * 用于各层之间传递当前登录的用户信息
+     *	用于各层之间传递当前登录的用户信息
      */
     private static final ThreadLocal<IUserSessionInfo> loginUserThreadLocal = new ThreadLocal<IUserSessionInfo>();
+    private static final ThreadLocal<Boolean> PERMISSION_IS_TRUE = new ThreadLocal<Boolean>();
     
     private static final ThreadLocal<Boolean> loginTempUserThreadLocal = new ThreadLocal<Boolean>();
     
     private static final ThreadLocal<Long> loginUserTenantIdThreadLocal = new ThreadLocal<Long>();
     
     /**
-     * 用于各层之间传递当前登录的用户信息
+     *	用于各层之间传递当前登录的用户信息
      */
     private static final ThreadLocal<Boolean> isPublicRequest = new ThreadLocal<Boolean>();
 
@@ -170,6 +171,7 @@ public class LoginContext
      */
     public static void clearCurrentSessionInfo(){
     	loginUserThreadLocal.remove();
+    	PERMISSION_IS_TRUE.remove();
     }
 
    
@@ -213,4 +215,19 @@ public class LoginContext
     	return flag;
     }
 
+    public static void setCurrentPermissionIsTrue() {
+    	PERMISSION_IS_TRUE.set(true);
+    }
+    
+    public static void clearCurrentPermissionIsTrue() {
+    	PERMISSION_IS_TRUE.remove();
+    }
+    
+    /**
+     *	上级拦截器已判断为true
+     * @return
+     */
+    public static boolean isCurrentPermissionTrue() {
+    	return Boolean.TRUE.equals(PERMISSION_IS_TRUE.get());
+    }
 }

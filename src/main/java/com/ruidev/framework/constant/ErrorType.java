@@ -46,12 +46,12 @@ public class ErrorType {
 	 */
 	public static final String UN_AUTHORIZED_MSG = "当前请求未授权";
 	/**
-	 * 未知系统错误
+	 * 内部错误
 	 */
 	public static final int UNKNOWN_SYSTEM_ERROR = 999;
 	/**
-	 * 未知系统错误
+	 * 内部错误
 	 */
-	public static final String UNKNOWN_SYSTEM_ERROR_MSG = "系统错误";
+	public static final String UNKNOWN_SYSTEM_ERROR_MSG = "内部错误";
 	
 }

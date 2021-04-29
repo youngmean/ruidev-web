@@ -9,18 +9,20 @@ public class PageConstant
     public static final String REQ_DATA_TYPE_JSON = "json";
     public static final String REQ_DATA_TYPE_JSONP = "jsonp";
     public static final String REQ_DATA_TYPE_XML = "xml";
+    public static final String REQ_DATA_TYPE_YML = "yml";
+    public static final String REQ_DATA_TYPE_YAML = "yaml";
     public static final String REQ_DATA_TYPE_HTML = "html";
     /**
      * 分页查询时最大单页数据量
      */
-    public static final Integer MAX_PAGE_SIZE = 1000;
+    public static final Integer MAX_PAGE_SIZE = 100;
     /**
      * 默认单页数据量
      */
     public static final Integer DEFAULT_PAGE_SIZE = 20;
     
     public static boolean isValidDataType(String dataType){
-    	return REQ_DATA_TYPE_JSON.equals(dataType) || REQ_DATA_TYPE_JSONP.equals(dataType) || REQ_DATA_TYPE_XML.equals(dataType);
+    	return REQ_DATA_TYPE_JSON.equals(dataType) || REQ_DATA_TYPE_JSONP.equals(dataType) || REQ_DATA_TYPE_XML.equals(dataType) || REQ_DATA_TYPE_YML.equals(dataType) || REQ_DATA_TYPE_YAML.equals(dataType);
     }
     
     /** sql关键词 like **/

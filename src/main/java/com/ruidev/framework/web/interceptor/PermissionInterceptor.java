@@ -45,16 +45,21 @@ public class PermissionInterceptor extends AbstractInterceptor {
 		Method method = invocationClass.getMethod(origMethodName);
 		//ServletActionContext.getResponse().addHeader("X-Frame-Options", "SAMEORIGIN");
 		if(method.isAnnotationPresent(ActionEnableAnon.class)){
-			String[] methodTypes = method.getAnnotation(ActionEnableAnon.class).methods();
+        	LoginContext.clearCurrentPermissionIsTrue();
+        	ActionEnableAnon anno = method.getAnnotation(ActionEnableAnon.class);
+			String[] methodTypes = anno.methods();
 			if(methodTypes == null || methodTypes.length < 1) {
 				return actionInvocation.invoke();
 			}else {
+				String dataType = anno.dataType();
 				for(String mtd : methodTypes) {
 					if(methodType.equals(mtd.toLowerCase())) {
+						if(PageConstant.isValidDataType(dataType) && action instanceof AbsCrudAction && StringUtils.isEmpty(((AbsCrudAction)action).getDataType())){
+							((AbsCrudAction)action).setDataType(dataType);
+						}
 						return actionInvocation.invoke();
 					}
 				}
-				String dataType = invocationClass.getAnnotation(ActionEnableAnon.class).dataType();
 				if(PageConstant.isValidDataType(dataType) && action instanceof AbsCrudAction){
 					AbsCrudAction<?> _action = (AbsCrudAction)action;
 					_action.setError(ErrorType.USER_LOGIN_REQUIRED, ErrorType.USER_LOGIN_REQUIRED_MSG);
@@ -69,8 +74,12 @@ public class PermissionInterceptor extends AbstractInterceptor {
         	}else{
         		LoginContext.setCurrentLoginUserTemp(false);
         	}
+        	LoginContext.clearCurrentPermissionIsTrue();
 			Boolean hasP = ActionPermissionUtil.hasPermissionForCurrentRequest();
 			if(hasP == null || hasP){
+				if(Boolean.TRUE.equals(hasP)) {
+					LoginContext.setCurrentPermissionIsTrue();
+				}
 				return actionInvocation.invoke();
 			}
 			AbsCrudAction<?> _action = (AbsCrudAction)action;

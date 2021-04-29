@@ -80,7 +80,11 @@ public class ActionPermissionUtil {
 		if(permissionDefinitions == null){
 			return null;
 		}
-		return permissionDefinitions.getProperty(path);
+		String perm = permissionDefinitions.getProperty(path);
+		if(StringUtils.isEmpty(perm) && path.contains("/")) {
+			perm = permissionDefinitions.getProperty(path.substring(0, path.lastIndexOf("/")) + "/*");
+		}
+		return perm;
 	}
 	
 	/**

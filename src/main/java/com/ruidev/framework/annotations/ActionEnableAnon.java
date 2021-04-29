@@ -17,6 +17,8 @@ public @interface ActionEnableAnon {
 	
 	String[] methods() default {"get", "post"};
 	String dataType() default "json";
+	String[] validateSignMethods() default {"get", "post"};
+	
 }
 
 	

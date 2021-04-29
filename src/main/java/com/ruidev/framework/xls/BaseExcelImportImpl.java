@@ -138,6 +138,8 @@ public abstract class BaseExcelImportImpl {
 			} catch (NumberFormatException e) {
 				return null;
 			}
+		}else if(cellType == CellType.FORMULA){
+			return cell.getNumericCellValue();
 		}
 		return null;
 	}

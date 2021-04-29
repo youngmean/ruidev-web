@@ -99,6 +99,7 @@ public class RequestContext {
 	}
 	
 	public static void addFilter(String key, Object value){
+		if(value == null)return;
 		addCrudFilter(key, value);
 		try {
 			setValueStack(key, value);
@@ -233,8 +234,11 @@ public class RequestContext {
 	}
 	
 	public static int getBeginIndex() {
-		if(getIndex() != null && getSize() != null) {
-			return (getIndex() - 1)* getSize();
+		Integer index = getIndex();
+		Integer size = getSize();
+		if(index != null && size != null) {
+			int begin = (index - 1 )* size;
+			return begin < 0 ? 0 : begin;
 		}
 		return 0;
 	}
@@ -443,9 +447,17 @@ public class RequestContext {
 		} else if ("le".equalsIgnoreCase(op)) {
 			hsqlByFilter.append(" <= ? ");
 		} else if ("neq".equalsIgnoreCase(op)) {
-			hsqlByFilter.append(" != ? ");
+			if ("IS_NULL".equals(value)) {
+				hsqlByFilter.append(" is not null ");
+			}else {
+				hsqlByFilter.append(" != ? ");
+			}
 		} else {
-			hsqlByFilter.append(" = ? ");
+			if ("IS_NULL".equals(value)) {
+				hsqlByFilter.append(" is null ");
+			}else {
+				hsqlByFilter.append(" = ? ");
+			}
 		}
 		return 1;
 	}
