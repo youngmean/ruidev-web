@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -74,7 +74,7 @@ public abstract class BaseExcelImportImpl {
 		CellType cellType = null;
 		if (cell instanceof StreamingCell) {
 			StreamingCell _cell = (StreamingCell) cell;
-			cellType = _cell.getCellTypeEnum();
+			cellType = _cell.getCellType();
 		} else {
 			cellType = cell.getCellType();
 		}
@@ -125,7 +125,7 @@ public abstract class BaseExcelImportImpl {
 		CellType cellType = null;
 		if (cell instanceof StreamingCell) {
 			StreamingCell _cell = (StreamingCell) cell;
-			cellType = _cell.getCellTypeEnum();
+			cellType = _cell.getCellType();
 		} else {
 			cellType = cell.getCellType();
 		}
@@ -161,13 +161,13 @@ public abstract class BaseExcelImportImpl {
 		CellType type = null;
 		if (cell instanceof StreamingCell) {
 			StreamingCell _cell = (StreamingCell) cell;
-			type = _cell.getCellTypeEnum();
+			type = _cell.getCellType();
 		} else {
 			type = cell.getCellType();
 		}
 		Object _val = null;
 		if (type.equals(CellType.NUMERIC)) {
-			if (HSSFDateUtil.isCellDateFormatted(cell)) {
+			if (DateUtil.isCellDateFormatted(cell)) {
 				return getDateFormat("yyyy-MM-dd hh:mm:ss").format(cell.getDateCellValue());
 			}
 			double val = cell.getNumericCellValue();
@@ -198,13 +198,13 @@ public abstract class BaseExcelImportImpl {
 		CellType type = null;
 		if (cell instanceof StreamingCell) {
 			StreamingCell _cell = (StreamingCell) cell;
-			type = _cell.getCellTypeEnum();
+			type = _cell.getCellType();
 		} else {
 			type = cell.getCellType();
 		}
 		Object _val = null;
 		if (type.equals(CellType.NUMERIC)) {
-			if (HSSFDateUtil.isCellDateFormatted(cell)) {
+			if (DateUtil.isCellDateFormatted(cell)) {
 				return cell.getDateCellValue();
 			}
 			double val = cell.getNumericCellValue();
@@ -270,12 +270,12 @@ public abstract class BaseExcelImportImpl {
 		CellType type = null;
 		if (cell instanceof StreamingCell) {
 			StreamingCell _cell = (StreamingCell) cell;
-			type = _cell.getCellTypeEnum();
+			type = _cell.getCellType();
 		} else {
 			type = cell.getCellType();
 		}
 		if (type.equals(CellType.NUMERIC)) {
-			if (HSSFDateUtil.isCellDateFormatted(cell)) {
+			if (DateUtil.isCellDateFormatted(cell)) {
 				target.setCellValue(cell.getDateCellValue());
 				return;
 			}

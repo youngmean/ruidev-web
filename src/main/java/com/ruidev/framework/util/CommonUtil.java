@@ -337,7 +337,8 @@ public class CommonUtil {
     	}
     }
     
-    public static Object copyPropertiesBatch(List srcList, List targetList, String ...properties) throws Exception{
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Object copyPropertiesBatch(List srcList, List targetList, String ...properties) throws Exception{
     	if(srcList == null)return null;
     	if(targetList == null) {
     		targetList = new ArrayList<Object>(); 

@@ -289,7 +289,7 @@ public abstract class AssignedIdEntityBo<E extends AssignedIdCrudEntity> extends
 		return entityClass;
 	}
 	
-    public void throwBizException(String...strings) throws BizException {
+    public void throwBizException(Object...strings) throws BizException {
     	throw new BizException(CommonUtil.combineStrings(strings));
     }
     
