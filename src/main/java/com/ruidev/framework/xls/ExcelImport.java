@@ -77,7 +77,8 @@ public class ExcelImport {
 		} else {
 			fReader = new InputStreamReader(new FileInputStream(file), code);
 		}
-		CSVReader csvReader = new CSVReader(fReader, separator, quote);
+//		CSVReader csvReader = new CSVReader(fReader, separator, quote);
+		CSVReader csvReader = new CSVReader(fReader);
         String[] strs = csvReader.readNext();
         int rowIndex = 0;
         try {

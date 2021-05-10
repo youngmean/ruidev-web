@@ -54,9 +54,9 @@ public class PermissionInterceptor extends AbstractInterceptor {
 				String dataType = anno.dataType();
 				for(String mtd : methodTypes) {
 					if(methodType.equals(mtd.toLowerCase())) {
-						if(PageConstant.isValidDataType(dataType) && action instanceof AbsCrudAction && StringUtils.isEmpty(((AbsCrudAction)action).getDataType())){
-							((AbsCrudAction)action).setDataType(dataType);
-						}
+//						if(PageConstant.isValidDataType(dataType) && action instanceof AbsCrudAction && StringUtils.isEmpty(((AbsCrudAction)action).getDataType())){
+//							((AbsCrudAction)action).setDataType(dataType);
+//						}
 						return actionInvocation.invoke();
 					}
 				}
