@@ -91,7 +91,7 @@ public class UserBo extends EntityBo<RuidevUser>{
 				throw new BizException("原密码错误");
 			}
 		}
-		user.setPassword(newPwd);
+		user.setPassword(DesUtil.encrypt(newPwd));
 		saveData(user);
 		return user;
 	}

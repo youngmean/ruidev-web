@@ -447,6 +447,14 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
     	((HashMap<String, Object>)returnObject).put(key, value);
     }
 
+    @SuppressWarnings("unchecked")
+	protected Object getReturnObjectAttribute(String key){
+    	if(returnObject != null &&  returnObject instanceof HashMap){
+    		return ((HashMap<String, Object>)returnObject).get(key);
+    	}
+    	return null;
+    }
+    
 	public void setJsonData(String jsonData) {
         this.jsonData = jsonData;
     }

@@ -289,5 +289,5 @@ public abstract class EntityBo<E extends CrudEntity> extends GenericBo {
 	
     public void throwBizException(Object...strings) throws BizException {
     	throw new BizException(CommonUtil.combineStrings(strings));
-    }	
+    }
 }
