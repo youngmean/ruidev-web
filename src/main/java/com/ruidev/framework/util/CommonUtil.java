@@ -352,6 +352,16 @@ public class CommonUtil {
     }
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Object copyPropertiesBatchByClass(List srcList, Class<?> clazz, String ...properties) throws Exception{
+    	if(srcList == null)return null;
+		List targetList = new ArrayList<Object>(); 
+    	for(Object src : srcList) {
+    		targetList.add(copyProperties(src, clazz.newInstance(), properties));
+    	}
+    	return targetList;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object copyProperties(Object src, Object target, String ...properties) throws Exception{
     	Class<?> srcClass = src.getClass();
     	if(target == null) {
