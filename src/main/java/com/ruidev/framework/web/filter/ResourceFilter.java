@@ -45,7 +45,7 @@ public class ResourceFilter implements Filter{
     private static boolean isGZipEncoding(HttpServletRequest request){
       boolean flag=false;
       String encoding=request.getHeader("Accept-Encoding");
-      if(encoding.indexOf("gzip")!=-1){
+      if(encoding != null && encoding.indexOf("gzip")!=-1){
         flag=true;
       }
       return flag;

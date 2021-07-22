@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 import com.ruidev.admin.conf.util.ConfigurationUtil;
 import com.ruidev.framework.bo.GenericBo;
 import com.ruidev.framework.constant.ErrorType;
+import com.ruidev.framework.constant.ListSortBy;
 import com.ruidev.framework.constant.PageConstant;
 import com.ruidev.framework.entity.AbsEntity;
 import com.ruidev.framework.exception.BizException;
@@ -71,6 +73,7 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
     protected Collection<Pattern> includeProperties;
     protected Collection<Pattern> excludeProperties;
     protected String requestMethod;
+    protected String sortby;
 
     protected String SUCCESS = "success";
     protected String TARGET = "target";
@@ -1082,7 +1085,56 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 	public boolean isPostRequest() {
 		return "POST".equals(getRequestMethod());
 	}
+
+	public String getSortby() {
+		return sortby;
+	}
+
+	public void setSortby(String sortby) {
+		this.sortby = sortby;
+	}
+
+	public List<ListSortBy> getSortBys(String...sorts){
+		if(StringUtils.isEmpty(sortby))return null;
+		Map<String, Boolean> sortsLimit = new HashMap<String, Boolean>();
+		for(String s : sorts) {
+			sortsLimit.put(s, true);
+		}
+		String[] _sorts = sortby.split(",");
+		List<ListSortBy> bys = new ArrayList<ListSortBy>();
+		for(String _sort : _sorts) {
+			String[] sort = _sort.split("=");
+			String orderField = sort[0];
+			if(!sortsLimit.containsKey(orderField))continue;
+			String orderby = sort[1];
+			ListSortBy sortBy = ConfigurationUtil.getInstance().getEnum(ListSortBy.class, orderby);
+			if(sortBy == null)continue;
+			sortBy.setField(orderField);
+			bys.add(sortBy);
+			RequestContext.addOrderBy(orderField, sortBy.getName());
+		}
+		return bys;
+	}
 	
+	public List<ListSortBy> getSortBys(ListSortBy defaultSortBy, String...sorts){
+		List<ListSortBy> bys = getSortBys(sorts);
+		if(bys == null) {
+			RequestContext.addOrderBy(defaultSortBy.getField(), defaultSortBy.getName());
+			bys = Arrays.asList(defaultSortBy);
+		}
+		return bys;
+	}
+	
+	public List<ListSortBy> getSortBys(List<ListSortBy> defaultSortBys, String...sorts){
+		List<ListSortBy> bys = getSortBys(sorts);
+		if(bys == null && defaultSortBys != null) {
+			for(ListSortBy by : defaultSortBys) {
+				RequestContext.addOrderBy(by.getField(), by.getName());
+			}
+			bys = defaultSortBys;
+		}
+		return bys;
+	}
 }
 class ReturnData {
 	public boolean success;
