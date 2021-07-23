@@ -1052,6 +1052,18 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 		}
 	}
 	
+	public void assertNullOrEmptyError(Object param, String error) throws Exception{
+		if(param == null){
+			throw new BizException(error, ErrorType.INVALID_INPUT);
+		}else{
+			if(param instanceof String){
+				if(StringUtils.isEmpty(param.toString())){
+					throw new BizException(error, ErrorType.INVALID_INPUT);
+				}
+			}
+		}
+	}
+	
 	public void assertNullOrEmpty(Object param, String paramName, int maxLen) throws Exception{
 		assertNullOrEmpty(param, paramName);
 		if(param.toString().length() > maxLen) {
@@ -1066,6 +1078,16 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 		}
 		if(param.toString().length() > maxLen) {
 			throw new BizException(CommonUtil.combineStrings("参数【", paramName,"】长度不能超过",maxLen+"","位"), ErrorType.INVALID_INPUT);
+		}
+	}
+	
+	public void assertNullOrEmptyError(Object param, String error, int minLen, int maxLen) throws Exception{
+		assertNullOrEmptyError(param, error);
+		if(param.toString().length() < minLen) {
+			throw new BizException(CommonUtil.combineStrings(error," 长度不能低于",minLen+"","位"), ErrorType.INVALID_INPUT);
+		}
+		if(param.toString().length() > maxLen) {
+			throw new BizException(CommonUtil.combineStrings(error," 长度不能超过",maxLen+"","位"), ErrorType.INVALID_INPUT);
 		}
 	}
 	
