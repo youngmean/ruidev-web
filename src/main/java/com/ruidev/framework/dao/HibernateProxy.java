@@ -46,6 +46,12 @@ public class HibernateProxy {
 
 	public <T> List<T> find(String hql, boolean singleResult, Object... params) {
 		hql = HSqlUtil.getJPAStyledHSql(hql);
+		Integer maxResults = null;
+		if(!singleResult && hql.matches(".*limit\\s+\\d+.*")) {
+			String limitStr = hql.replaceAll(".*limit\\s+(\\d+).*", "$1");
+			hql = hql.replaceAll("(.*)\\s+limit\\s+(\\d+)(.*)", "$1 $3");
+			maxResults = Integer.valueOf(limitStr);
+		}
 		List<T> list = null;
 		Query<T> query = getSession().createQuery(hql);// .setCacheable(true);
 		for (Integer i = 0; i < params.length; i++) {
@@ -58,6 +64,8 @@ public class HibernateProxy {
 		}
 		if (singleResult) {
 			query.setMaxResults(1);
+		}else if(maxResults != null && maxResults > 0) {
+			query.setMaxResults(maxResults);
 		}
 		list = query.list();
 		return list;
