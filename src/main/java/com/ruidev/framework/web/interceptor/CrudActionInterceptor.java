@@ -17,6 +17,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.struts2.ServletActionContext;
+import org.hibernate.QueryException;
 import org.hibernate.exception.GenericJDBCException;
 
 import com.opensymphony.xwork2.ActionContext;
@@ -110,7 +111,7 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 			return exceptionWrap(e, crudAction);
 		} catch (NullPointerException e) {
 			clearCurrentContext();
-			return exceptionWrap(e, crudAction);
+			return exceptionWrap(e, crudAction, 900);
 		} catch(ConstraintViolationException e){
 			Set<ConstraintViolation<?>> vs = e.getConstraintViolations();
 			crudAction.setError(ErrorType.INVALID_INPUT, ErrorType.INVALID_INPUT_MSG);
@@ -120,10 +121,13 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 				}
 			}
 			clearCurrentContext();
-			return exceptionWrap(new BizException("验证错误"), crudAction);
+			return exceptionWrap(new BizException("验证错误"), crudAction, 901);
 		} catch (GenericJDBCException e) {
 			clearCurrentContext();
-			return exceptionWrap(e.getSQLException(), crudAction);
+			return exceptionWrap(e.getSQLException(), crudAction, 902);
+		}  catch (QueryException e) {
+			clearCurrentContext();
+			return exceptionWrap(e, crudAction, 903);
 		} catch (IllegalArgumentException e) {
 			clearCurrentContext();
 			crudAction.setError(ErrorType.INVALID_INPUT, ErrorType.INVALID_INPUT_MSG);
@@ -133,7 +137,7 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 				crudAction.addDetail(field, "Invalid parameter");
 			}
 			e.printStackTrace();
-			return exceptionWrap(new BizException("Invalid parameters"), crudAction);
+			return exceptionWrap(new BizException("Invalid parameters"), crudAction, 904);
 		} catch (ConfigurationException e) {
 			clearCurrentContext();
 			return "410";
@@ -249,15 +253,35 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 	 * @param request
 	 */
 
+	public String exceptionWrap(Exception e, CrudAction action, int errorId) {
+		return exceptionWrap(e, action, null, errorId);
+	}
+	
+	/**
+	 * 异常控制.
+	 * 
+	 * @param request
+	 */
+
 	public String exceptionWrap(Exception e, CrudAction action, String defaultResult) {
+		return exceptionWrap(e, action, defaultResult, ErrorType.UNKNOWN_SYSTEM_ERROR);
+	}
+	
+	/**
+	 * 异常控制.
+	 * 
+	 * @param request
+	 */
+
+	public String exceptionWrap(Exception e, CrudAction action, String defaultResult, int errorId) {
 		HttpServletRequest req = ServletActionContext.getRequest();
 		String result = defaultResult == null ? "500" : defaultResult;
 		String msg = null;
 		if (!(e instanceof BizException) && !(e instanceof SysException)) {
 			e.printStackTrace();
-			logger.error(msg);
+			logger.error("Server inner error: {}", e.getMessage());
 			msg = "Server inner error";
-			action.setError(ErrorType.UNKNOWN_SYSTEM_ERROR, msg);
+			action.setError(errorId, msg);
 		}else {
 			BaseException baseE = (BaseException)e;
 			msg = e.getMessage();

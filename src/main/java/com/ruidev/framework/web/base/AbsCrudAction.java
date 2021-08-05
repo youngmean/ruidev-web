@@ -1064,6 +1064,18 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 		}
 	}
 	
+	public void assertNullOrEmptyErrorWithCode(int errorcode, Object param, String error) throws Exception{
+		if(param == null){
+			throw new BizException(error, errorcode);
+		}else{
+			if(param instanceof String){
+				if(StringUtils.isEmpty(param.toString())){
+					throw new BizException(error, errorcode);
+				}
+			}
+		}
+	}
+	
 	public void assertNullOrEmpty(Object param, String paramName, int maxLen) throws Exception{
 		assertNullOrEmpty(param, paramName);
 		if(param.toString().length() > maxLen) {
@@ -1091,10 +1103,26 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 		}
 	}
 	
+	public void assertNullOrEmptyErrorWithCode(int errorcode, Object param, String error, int minLen, int maxLen) throws Exception{
+		assertNullOrEmptyErrorWithCode(errorcode, param, error);
+		if(param.toString().length() < minLen) {
+			throw new BizException(CommonUtil.combineStrings(error," 长度不能低于",minLen+"","位"), errorcode);
+		}
+		if(param.toString().length() > maxLen) {
+			throw new BizException(CommonUtil.combineStrings(error," 长度不能超过",maxLen+"","位"), errorcode);
+		}
+	}
+	
 	public void throwBizException(Object...strings) throws BizException {
     	throw new BizException(CommonUtil.combineStrings(strings));
     }
 
+	public void throwBizExceptionWithCode(int errorId, Object...strings) throws BizException {
+		BizException e = new BizException(CommonUtil.combineStrings(strings));
+		e.setErrorId(errorId);
+    	throw e;
+    }
+	
 	public String getRequestMethod() {
 		requestMethod = request.getMethod().toUpperCase();
 		return requestMethod;

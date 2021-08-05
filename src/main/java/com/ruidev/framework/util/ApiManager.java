@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.ruidev.framework.annotations.ApiName;
 import com.ruidev.framework.annotations.ApiSort;
 import com.ruidev.framework.api.BaseApi;
 import com.ruidev.framework.constant.BaseConstants;
@@ -48,6 +49,31 @@ public class ApiManager {
 	}
 	
 	/**
+	 * 返回第一个匹配的api实现实例<br>
+	 * 注意:若apiClass是抽象类,调用时请注意判空
+	 * @param apiClass
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends BaseApi> T getApi(Class<T> apiClass, String apiName) {
+		List<T> apis = (List<T>) APIS.get(apiClass.getName());
+		if(apis == null) {
+			apis = initApis(apiClass);
+			APIS.put(apiClass.getName(), (List<BaseApi>) apis);
+		}
+		for(T api : apis) {
+			Class<?> o1Class = api.getClass();
+			if(o1Class.isAnnotationPresent(ApiName.class)) {
+				String apiname = o1Class.getAnnotation(ApiName.class).name();
+				if(apiName.equals(apiname)) {
+					return api;
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * 初始化功能权限Api
 	 */
 	private static <T extends BaseApi> List<T> initApis(Class<T> apiClass) {
@@ -67,11 +93,13 @@ public class ApiManager {
 				public int compare(T o1, T o2) {
 					int o1Index = 0;
 					int o2Index = 0;
-					if(o1.getClass().isAnnotationPresent(ApiSort.class)) {
-						o1Index = o1.getClass().getAnnotation(ApiSort.class).index();
+					Class<?> o1Class = o1.getClass();
+					if(o1Class.isAnnotationPresent(ApiSort.class)) {
+						o1Index = o1Class.getAnnotation(ApiSort.class).index();
 					}
-					if(o2.getClass().isAnnotationPresent(ApiSort.class)) {
-						o2Index = o2.getClass().getAnnotation(ApiSort.class).index();
+					Class<?> o2Class = o2.getClass();
+					if(o2Class.isAnnotationPresent(ApiSort.class)) {
+						o2Index = o2Class.getAnnotation(ApiSort.class).index();
 					}
 					return o1Index - o2Index;
 				}

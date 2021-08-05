@@ -290,4 +290,10 @@ public abstract class EntityBo<E extends CrudEntity> extends GenericBo {
     public void throwBizException(Object...strings) throws BizException {
     	throw new BizException(CommonUtil.combineStrings(strings));
     }
+    
+    public void throwBizExceptionWithErrorId(int errorId, Object...strings) throws BizException {
+    	BizException exp = new BizException(CommonUtil.combineStrings(strings));
+    	exp.setErrorId(errorId);
+    	throw exp;
+    }
 }
