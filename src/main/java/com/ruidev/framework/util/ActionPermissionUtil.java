@@ -198,7 +198,7 @@ public class ActionPermissionUtil {
 				if(LoginContext.isCurrentUserManager()) {
 					String roleCode = LoginContext.getCurrentUserRoleCode();
 					if(hasRolePermissionForPermissionStr(roleCode, permissionStrs) || hasRolePermissionForPermissionStr(roleCode, commonMatchUrlPermissionStrs)) {
-						return null;
+						return true;
 					}
 				}
 				String[] permissionStrArr = permissionStrs.split(",");
