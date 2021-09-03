@@ -100,6 +100,9 @@ public class RequestContext {
 	
 	public static void addFilter(String key, Object value){
 		if(value == null)return;
+		if(value instanceof String && StringUtils.isEmpty(value.toString())) {
+			return;
+		}
 		addCrudFilter(key, value);
 		try {
 			setValueStack(key, value);
