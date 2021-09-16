@@ -432,6 +432,10 @@ public class RequestContext {
 				}
 				return 1;
 			} 
+		}else if("hql".equalsIgnoreCase(op) || "sql".equalsIgnoreCase(op)) {
+			hsqlByFilter.append(" ").append(columnStr.substring(4));
+			_params.add(value);
+			return 1;
 		}
 		if ("like".equalsIgnoreCase(op)) {
 			_params.add(CommonUtil.combineStrings("%", value.toString(), "%"));
