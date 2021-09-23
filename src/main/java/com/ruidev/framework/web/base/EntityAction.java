@@ -104,6 +104,10 @@ public abstract class EntityAction<E extends CrudEntity, BO extends EntityBo<E>>
 	public void setBo(BO bo) {
 		this.bo = bo;
 	}
+	
+	public BO getBo() {
+		return bo;
+	}
 
 	public void setBo(GenericBo bo) {}
 }

@@ -450,7 +450,7 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void setReturnObjectAttribute(String key, Object value) {
+	public void setReturnObjectAttribute(String key, Object value) {
 		if (returnObject == null) {
 			returnObject = new HashMap<String, Object>();
 		}
