@@ -1085,7 +1085,7 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 					ErrorType.INVALID_INPUT);
 		} else {
 			if (param instanceof String) {
-				if (StringUtils.isEmpty(param.toString())) {
+				if (StringUtils.isEmpty(param.toString().trim())) {
 					throw new BizException(ConfigurationUtil.getInstance().i18n("req.paramrequired", paramName),
 							ErrorType.INVALID_INPUT);
 				}
@@ -1098,7 +1098,7 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 			throw new BizException(error, ErrorType.INVALID_INPUT);
 		} else {
 			if (param instanceof String) {
-				if (StringUtils.isEmpty(param.toString())) {
+				if (StringUtils.isEmpty(param.toString().trim())) {
 					throw new BizException(error, ErrorType.INVALID_INPUT);
 				}
 			}
@@ -1110,7 +1110,7 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 			throw new BizException(error, errorcode);
 		} else {
 			if (param instanceof String) {
-				if (StringUtils.isEmpty(param.toString())) {
+				if (StringUtils.isEmpty(param.toString().trim())) {
 					throw new BizException(error, errorcode);
 				}
 			}

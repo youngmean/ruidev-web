@@ -1,5 +1,6 @@
 package com.ruidev.admin.xzq.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -13,6 +14,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.ruidev.admin.xzq.vo.DistrictData;
 import com.ruidev.framework.entity.CrudEntity;
 
 /**
@@ -93,4 +95,17 @@ public class City extends CrudEntity {
 		this.areas = areas;
 	}
 
+	public DistrictData toDistrictData() {
+		DistrictData data = new DistrictData();
+		data.setLabel(name);
+		data.setValue(code);
+		if(areas != null && areas.size() > 0) {
+			List<DistrictData> children = new ArrayList<DistrictData>();
+			for(Area c : areas) {
+				children.add(c.toDistrictData());
+			}
+			data.setChildren(children);
+		}
+		return data;
+	}
 }

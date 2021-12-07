@@ -1,5 +1,6 @@
 package com.ruidev.admin.xzq.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -9,6 +10,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.ruidev.admin.xzq.vo.DistrictData;
 import com.ruidev.framework.entity.CrudEntity;
 
 /**
@@ -62,4 +64,17 @@ public class Province extends CrudEntity {
 		this.cities = cities;
 	}
 
+	public DistrictData toDistrictData() {
+		DistrictData data = new DistrictData();
+		data.setLabel(name);
+		data.setValue(code);
+		if(cities != null && cities.size() > 0) {
+			List<DistrictData> children = new ArrayList<DistrictData>();
+			for(City c : cities) {
+				children.add(c.toDistrictData());
+			}
+			data.setChildren(children);
+		}
+		return data;
+	}
 }

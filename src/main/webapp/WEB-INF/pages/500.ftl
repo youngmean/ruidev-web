@@ -8,6 +8,7 @@
 			stacktrace.style.display = 'none';
 		}
 	}
+	window.parent.postMessage&&window.parent.postMessage('pageonload',"*")
 </script>
 <div class="note note-danger note-bordered">
 	<h4>错误提示</h4>

@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.ruidev.admin.xzq.vo.DistrictData;
 import com.ruidev.framework.entity.CrudEntity;
 
 /**
@@ -81,4 +82,10 @@ public class Area extends CrudEntity {
 		this.city = city;
 	}
 
+	public DistrictData toDistrictData() {
+		DistrictData data = new DistrictData();
+		data.setLabel(name);
+		data.setValue(code);
+		return data;
+	}
 }
