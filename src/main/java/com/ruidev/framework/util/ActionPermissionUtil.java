@@ -180,9 +180,13 @@ public class ActionPermissionUtil {
 		String permissionStrs = getPermissionByPath(reqUrl);
 		String commonMatchUrl = CommonUtil.combineStrings(nameSpace, "*").replaceAll("\\/+", "/");
 		String commonMatchUrlPermissionStrs = getPermissionByPath(commonMatchUrl);
+		String commonMatchUrlPermissionStrsForAction = permissionDefinitions.getProperty(CommonUtil.combineStrings("*/", action));
 		if(StringUtils.isEmpty(permissionStrs)) {
 			reqUrl = commonMatchUrl;
 			permissionStrs = commonMatchUrlPermissionStrs;
+		}
+		if(StringUtils.isEmpty(permissionStrs)) {
+			permissionStrs = permissionDefinitions.getProperty(CommonUtil.combineStrings("*/", action));
 		}
 		if(PERMISSION_ANON.equals(permissionStrs) || "/".equals(reqUrl)){
 			return true;
@@ -198,6 +202,9 @@ public class ActionPermissionUtil {
 				if(LoginContext.isCurrentUserManager()) {
 					String roleCode = LoginContext.getCurrentUserRoleCode();
 					if(hasRolePermissionForPermissionStr(roleCode, permissionStrs) || hasRolePermissionForPermissionStr(roleCode, commonMatchUrlPermissionStrs)) {
+						return true;
+					}
+					if(hasRolePermissionForPermissionStr(roleCode, commonMatchUrlPermissionStrsForAction)) {
 						return true;
 					}
 				}
