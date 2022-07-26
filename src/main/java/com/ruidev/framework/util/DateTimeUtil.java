@@ -596,10 +596,14 @@ public class DateTimeUtil {
 		return c.getTime();
 	}
 
-	public static Date addMillSeconds(Date date, int millseconds) {
+	public static Date addMillSeconds(Date date, long millseconds) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(date);
-		c.add(Calendar.MILLISECOND, millseconds);
+		while(millseconds > Integer.MAX_VALUE) {
+			c.add(Calendar.MILLISECOND, Integer.MAX_VALUE);
+			millseconds -= Integer.MAX_VALUE;
+		}
+		c.add(Calendar.MILLISECOND, (int)millseconds);
 		return c.getTime();
 	}
 }

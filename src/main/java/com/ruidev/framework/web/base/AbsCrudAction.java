@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.struts2.ServletActionContext;
@@ -308,6 +310,15 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 	public String getJsonData() {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
+		return jsonData();
+	}
+	
+	/**
+	 * 将数据以json格式返回, 反解析object,objects,errorMsg
+	 * 
+	 * @return
+	 */
+	public String jsonData() {
 		if (StringUtils.isEmpty(jsonData)) {
 			ReturnData data = getReturnData();
 			returnObject = data.object;
@@ -592,11 +603,15 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 
 	@SuppressWarnings("unchecked")
 	protected <T> T getSessionAttribute(String attr) {
-		return (T) request.getSession(false).getAttribute(attr);
+		HttpSession session = request.getSession(false);
+		if(session == null)return null;
+		return (T) session.getAttribute(attr);
 	}
 
 	protected void removeSessionAttribute(String attr) {
-		request.getSession().removeAttribute(attr);
+		HttpSession session = request.getSession(false);
+		if(session == null)return;
+		session.removeAttribute(attr);
 	}
 
 	@Override
