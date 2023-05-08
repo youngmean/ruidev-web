@@ -9,7 +9,8 @@ import java.util.Properties;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.struts2.ServletActionContext;
 
 import com.ruidev.framework.api.ActionPermissionApi;
@@ -53,7 +54,7 @@ public class ActionPermissionUtil {
 	
 	private static Properties permissionDefinitions;
 
-	private final static Logger log = Logger.getLogger(ActionPermissionUtil.class);
+	private final static Logger log = LogManager.getLogger(ActionPermissionUtil.class);
 
 	/**
 	 * 从配置文件中初始化权限定义
@@ -82,7 +83,8 @@ public class ActionPermissionUtil {
 		}
 		String perm = permissionDefinitions.getProperty(path);
 		if(StringUtils.isEmpty(perm) && path.contains("/")) {
-			perm = permissionDefinitions.getProperty(path.substring(0, path.lastIndexOf("/")) + "/*");
+			String _path = path.substring(0, path.lastIndexOf("/")) + "/*";
+			perm = permissionDefinitions.getProperty(_path);
 		}
 		return perm;
 	}
@@ -189,6 +191,9 @@ public class ActionPermissionUtil {
 			permissionStrs = permissionDefinitions.getProperty(CommonUtil.combineStrings("*/", action));
 		}
 		if(PERMISSION_ANON.equals(permissionStrs) || "/".equals(reqUrl)){
+			return true;
+		}
+		if(!StringUtils.isEmpty(permissionStrs) && permissionStrs.contains(PERMISSION_ANON)) {
 			return true;
 		}
 		if(PERMISSION_TEMP.equals(permissionStrs) || "/".equals(reqUrl) && LoginContext.isCurrentUserTemp()){

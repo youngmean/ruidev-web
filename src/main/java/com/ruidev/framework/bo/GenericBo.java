@@ -4,12 +4,11 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 
 import com.ruidev.framework.annotations.LogicalDeletableEntity;
@@ -31,7 +30,7 @@ public class GenericBo {
 
 	protected final Logger log = LogManager.getLogger(this.getClass());
 	
-	@Resource
+	@Autowired
 	private HibernateProxy dao;
 
 	public void setDao(HibernateProxy dao) {
@@ -107,6 +106,10 @@ public class GenericBo {
 	
 	public Object[] getFirstJdbcData(String sql, Object... params) throws Exception {
 		return dao.getFirstJdbcResult(sql, params);
+	}
+	
+	public <T> T getSingleJdbcData(String sql, Object... params) throws Exception {
+		return dao.getFirstJdbcData(sql, params);
 	}
 
 	public <T> List<T> getAllData(Class<T> clazz) throws Exception {

@@ -544,7 +544,7 @@ public class DateTimeUtil {
 		Calendar c = Calendar.getInstance();
 		c.setTime(resourceDate);
 		c.add(Calendar.DATE, 1);
-		c.clear(Calendar.HOUR);
+		c.set(Calendar.HOUR_OF_DAY, 0);
 		c.clear(Calendar.MINUTE);
 		c.clear(Calendar.SECOND);
 		c.clear(Calendar.MILLISECOND);
@@ -599,9 +599,16 @@ public class DateTimeUtil {
 	public static Date addMillSeconds(Date date, long millseconds) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(date);
-		while(millseconds > Integer.MAX_VALUE) {
-			c.add(Calendar.MILLISECOND, Integer.MAX_VALUE);
-			millseconds -= Integer.MAX_VALUE;
+		if(millseconds > 0) {
+			while(millseconds > Integer.MAX_VALUE) {
+				c.add(Calendar.MILLISECOND, Integer.MAX_VALUE);
+				millseconds -= Integer.MAX_VALUE;
+			}
+		}else {
+			while(millseconds < Integer.MIN_VALUE) {
+				c.add(Calendar.MILLISECOND, -Integer.MIN_VALUE);
+				millseconds += Integer.MIN_VALUE;
+			}
 		}
 		c.add(Calendar.MILLISECOND, (int)millseconds);
 		return c.getTime();

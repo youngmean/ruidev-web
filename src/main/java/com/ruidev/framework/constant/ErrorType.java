@@ -46,6 +46,10 @@ public class ErrorType {
 	 */
 	public static final String UN_AUTHORIZED_MSG = "当前请求未授权";
 	/**
+	 * 业务错误
+	 */
+	public static final int BIZ_ERROR = 500;
+	/**
 	 * 内部错误
 	 */
 	public static final int UNKNOWN_SYSTEM_ERROR = 999;

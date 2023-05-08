@@ -2,7 +2,8 @@ package com.ruidev.framework.dao;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 
@@ -13,7 +14,7 @@ public class WebResourceInterceptor extends EmptyInterceptor {
 
 	private static final long serialVersionUID = 1L;
 	
-	protected final Logger log = Logger.getLogger(getClass());
+	protected final Logger log = LogManager.getLogger(getClass());
 	
 	@Override
 	public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) {

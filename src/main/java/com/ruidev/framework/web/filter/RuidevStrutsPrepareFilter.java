@@ -8,7 +8,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.struts2.dispatcher.filter.StrutsPrepareFilter;
+
+import com.ruidev.framework.util.ActionPermissionUtil;
 
 public class RuidevStrutsPrepareFilter extends StrutsPrepareFilter {
 
@@ -16,12 +19,23 @@ public class RuidevStrutsPrepareFilter extends StrutsPrepareFilter {
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest)req;
-        String url = request.getServletPath();  
-        if ("/ueditor/controller.jsp".equals(url)) {  
-            chain.doFilter(req, res);  
-        }else{  
-            super.doFilter(req, res, chain);  
-        }  
+		String uri = request.getRequestURI();
+		if(uri.contains("?")) {
+			uri = uri.substring(0, uri.indexOf("?"));
+		}
+		String perm = ActionPermissionUtil.getPermissionByPath(uri);
+		if(!StringUtils.isEmpty(perm) && perm.contains("[with-inputstream]")) {
+			InputStreamStrutsHttpServletRquestWrapper reqWrapper = new InputStreamStrutsHttpServletRquestWrapper(request);
+			super.doFilter(reqWrapper, res, chain);
+		}else {
+			super.doFilter(request, res, chain);
+		}
+//        String url = request.getServletPath();
+//        if ("/ueditor/controller.jsp".equals(url)) {  
+//            chain.doFilter(req, res);  
+//        }else{  
+//            super.doFilter(req, res, chain);  
+//        }  
 	}
 
 	

@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.core.annotation.AnnotationUtils;
+
 import com.ruidev.framework.annotations.ApiName;
 import com.ruidev.framework.annotations.ApiSort;
 import com.ruidev.framework.api.BaseApi;
@@ -63,8 +65,9 @@ public class ApiManager {
 		}
 		for(T api : apis) {
 			Class<?> o1Class = api.getClass();
-			if(o1Class.isAnnotationPresent(ApiName.class)) {
-				String apiname = o1Class.getAnnotation(ApiName.class).name();
+			ApiName apiAnno = AnnotationUtils.findAnnotation(o1Class, ApiName.class);
+			if(apiAnno != null) {
+				String apiname = apiAnno.name();
 				if(apiName.equals(apiname)) {
 					return api;
 				}
@@ -94,12 +97,14 @@ public class ApiManager {
 					int o1Index = 0;
 					int o2Index = 0;
 					Class<?> o1Class = o1.getClass();
-					if(o1Class.isAnnotationPresent(ApiSort.class)) {
+					ApiSort sort = AnnotationUtils.findAnnotation(o1Class, ApiSort.class);
+					if(sort != null) {
 						o1Index = o1Class.getAnnotation(ApiSort.class).index();
 					}
 					Class<?> o2Class = o2.getClass();
-					if(o2Class.isAnnotationPresent(ApiSort.class)) {
-						o2Index = o2Class.getAnnotation(ApiSort.class).index();
+					ApiSort sort2 = AnnotationUtils.findAnnotation(o2Class, ApiSort.class);
+					if(sort2 != null) {
+						o2Index = sort2.index();
 					}
 					return o1Index - o2Index;
 				}

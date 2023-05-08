@@ -9,7 +9,7 @@ public class BaseException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	/** errorId. */
-	private int errorId = 0;
+	private int errorId = 500;
 
 	/** arguments. */
 	private Object[] arguments;

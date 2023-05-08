@@ -68,7 +68,7 @@ public class ExcelImport {
 		E _import = clazz.newInstance();
 		return importCsvData(_import, file, code, seprator, quote);
 	}
-	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation"})
+	@SuppressWarnings({ "rawtypes", "unchecked"})
 	public <E extends BaseCsvImportImpl> List<?> importCsvData(E _import, File file, String code, char separator, char quote) throws Exception{
 		List list = new ArrayList();
 		InputStreamReader fReader = null;
@@ -168,6 +168,7 @@ public class ExcelImport {
         int dataIndex = 0;
         while(sheet != null){
 			int rowIndex = 0;
+			_import.setSheetName(sheet.getSheetName());
 			Map<String, Integer> indexes = new HashMap<String, Integer>();
 			for(Row row : sheet) {
 				if(row == null)break;
@@ -220,6 +221,7 @@ public class ExcelImport {
 			}
 			sheetIndex++;
 			try {
+				log.info("Loaded sheet: {}", sheetIndex);
 				sheet = wk.getSheetAt(sheetIndex);
 			} catch (Exception e) {
 				sheet = null;

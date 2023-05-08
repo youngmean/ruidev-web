@@ -138,6 +138,25 @@ public class HibernateProxy {
 		}
 		return query.list();
 	}
+	
+	public <T>List<T> getListDataWithJdbcSql(String sql, boolean singleResult, Object... params) {
+		sql = HSqlUtil.getJPAStyledHSql(sql);
+		Query<T> query = getSession().createNativeQuery(sql);
+		if (params != null) {
+			for (Integer i = 0; i < params.length; i++) {
+				String pos = CommonUtil.combineStrings("_", i.toString());
+				if(params[i] instanceof Collection<?>) {
+            		query.setParameterList(pos, (Collection<?>)params[i]);
+            	}else {
+            		query.setParameter(pos, params[i]);
+            	}
+			}
+		}
+		if (singleResult) {
+			query.setFetchSize(1);
+		}
+		return query.list();
+	}
 
 	@SuppressWarnings("deprecation")
 	public <T> List<T> getListByPagination(String sql, int type, Object... params) throws Exception {
@@ -275,6 +294,14 @@ public class HibernateProxy {
 
 	public Object[] getFirstJdbcResult(String sql, Object... params) {
 		List<Object[]> results = getListWithJdbcSql(sql, true, params);
+		if (results.size() > 0) {
+			return results.get(0);
+		}
+		return null;
+	}
+	
+	public <T>T getFirstJdbcData(String sql, Object... params) {
+		List<T> results = getListDataWithJdbcSql(sql, true, params);
 		if (results.size() > 0) {
 			return results.get(0);
 		}

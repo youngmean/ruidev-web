@@ -600,6 +600,7 @@ public class CommonUtil {
 	 * @param orderTag
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public static void importObjectPropertiesByXml(AbsEntity object, Element parentNode, String[] ignoreProperties)
 			throws Exception {
 		SimpleDateFormat df = new SimpleDateFormat(BaseConstants.BASE_IMPEXP_DATE_FORMAT);

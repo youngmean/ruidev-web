@@ -92,13 +92,6 @@ public abstract class AssignedIdEntityAction<E extends AssignedIdCrudEntity, BO 
         this.object = (E)object;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
 	@Autowired
 	public void setBo(BO bo) {
@@ -106,4 +99,12 @@ public abstract class AssignedIdEntityAction<E extends AssignedIdCrudEntity, BO 
 	}
 
 	public void setBo(GenericBo bo) {}
+
+	@Override
+	protected void onSetId() {
+		String id = super.getId();
+		if(id.matches("\\d+")) {
+    		this.id = Long.valueOf(id);
+    	}
+	}
 }

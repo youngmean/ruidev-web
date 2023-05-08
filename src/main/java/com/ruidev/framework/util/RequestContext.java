@@ -99,7 +99,8 @@ public class RequestContext {
 	}
 	
 	public static void addFilter(String key, Object value){
-		if(value == null)return;
+		if(StringUtils.isEmpty(key))return;
+		if(!key.startsWith("hql_") && !key.startsWith("sql_") && value == null)return;
 		if(value instanceof String && StringUtils.isEmpty(value.toString())) {
 			return;
 		}
@@ -111,6 +112,9 @@ public class RequestContext {
 	}
 	
 	public static void addMultiFilter(String key, Object... value){
+		for(Object val : value) {
+			if(val == null)return;
+		}
 		addCrudFilter(key, value);
 	}
 	
@@ -434,7 +438,9 @@ public class RequestContext {
 			} 
 		}else if("hql".equalsIgnoreCase(op) || "sql".equalsIgnoreCase(op)) {
 			hsqlByFilter.append(" ").append(columnStr.substring(4));
-			_params.add(value);
+			if(value != null) {
+				_params.add(value);
+			}
 			return 1;
 		}
 		if ("like".equalsIgnoreCase(op)) {
@@ -471,6 +477,12 @@ public class RequestContext {
 	
 	public static String getHsql(String hsql) {
 		StringBuffer hsqlByFilter = new StringBuffer();
+		String groupByHql = null;
+		int lastIndexOfGroupByHql = hsql.lastIndexOf("group by");
+		if(lastIndexOfGroupByHql > 0) {
+			groupByHql = hsql.substring(lastIndexOfGroupByHql, hsql.length());
+			hsql = hsql.substring(0, lastIndexOfGroupByHql);
+		}
 		hsqlByFilter.append(hsql);
 		Map<String, Object> filters = getFilters();
 		Set<String> columns = filters.keySet();
@@ -526,6 +538,9 @@ public class RequestContext {
 					hsqlByFilter.append(",");
 				}
 			}
+		}
+		if(groupByHql != null) {
+			hsqlByFilter.append(" ").append(groupByHql);
 		}
 		Map<String, String> orders = orderbys.get();
 		if(orders != null && orders.size() > 0) {

@@ -8,7 +8,7 @@
 			</div>
 		</div>
 		<div class="portlet-body form">
-			<form method="post" action="save" class="form-horizontal">
+			<form method="post" action="save" enctype="multipart/form-data" class="form-horizontal">
 				<div class="form-body">
 					<div class="form-group form-md-line-input">
 						<label class="control-label col-md-2">名称</label>

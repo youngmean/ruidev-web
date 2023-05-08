@@ -91,14 +91,20 @@ public abstract class EntityAction<E extends CrudEntity, BO extends EntityBo<E>>
     public void setObject(Object object) {
         this.object = (E)object;
     }
-
-    public Long getId() {
-        return id;
-    }
-
+    
+//    public Long getId() {
+//        return id;
+//    }
+/**
     public void setId(Long id) {
         this.id = id;
     }
+**/    
+//    public void setId(String id) {
+//    	if(id.matches("\\d+")) {
+//    		this.id = Long.valueOf(id);
+//    	}
+//    }
 
 	@Autowired
 	public void setBo(BO bo) {
@@ -110,4 +116,13 @@ public abstract class EntityAction<E extends CrudEntity, BO extends EntityBo<E>>
 	}
 
 	public void setBo(GenericBo bo) {}
+
+	@Override
+	protected void onSetId() {
+		String id = super.getId();
+		if(id.matches("\\d+")) {
+    		this.id = Long.valueOf(id);
+    	}
+	}
+	
 }

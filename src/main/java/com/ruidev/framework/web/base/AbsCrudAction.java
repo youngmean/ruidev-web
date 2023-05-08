@@ -55,6 +55,7 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 	 * 短提示信息
 	 */
 	protected String tip;
+	protected String id;
 	/**
 	 * 验证码
 	 */
@@ -1086,6 +1087,15 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 	public void setUploadFileContentType(String uploadFileContentType) {
 		this.uploadFileContentType = uploadFileContentType;
 	}
+	
+	public boolean containsNoneNullOrEmpty(Object ...params) {
+		for(Object param : params) {
+			if(param != null && !StringUtils.isEmpty(param.toString())) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public void assertNull(Object param, String paramName) throws Exception {
 		if (param == null) {
@@ -1250,6 +1260,17 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 		}
 		return bys;
 	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+		onSetId();
+	}
+	
+	protected abstract void onSetId();
 }
 
 class ReturnData {

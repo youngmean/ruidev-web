@@ -140,6 +140,10 @@ var R={
 		if(!conf.successCallback){
 			conf.successCallback = function(data){
 				if(typeof data == 'number'){
+					var form = R.$("form.form_search");
+					if(form.length>0){
+						form.submit();return;
+					}
 					var a = jQuery(R._tabTitlePrefix + " a");
 					var ulink = a.attr('ulink');
 					R.to(ulink || 'list');
@@ -1373,7 +1377,7 @@ var R={
 	qr:function(text,tip,width,height,logoConf,moreConfs){
 		var qrHeight=width||256,qrWidth=height||256;
 		var qrContainer = $("<div style='width:100%;height:100%;text-align:center'><div style='margin:0 auto;' id='_box_qr_div'></div></div>");
-		qrContainer.css({'min-height':qrHeight*1});
+		qrContainer.css({'min-height':qrHeight*1 + 64});
 		bootbox.dialog({
             message: qrContainer[0].outerHTML||"",
             title: tip||'',

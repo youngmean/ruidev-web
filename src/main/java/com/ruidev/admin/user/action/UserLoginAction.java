@@ -183,4 +183,10 @@ public class UserLoginAction extends AbsCrudAction<UserBo> {
 		return null;
 	}
 
+	@Override
+	protected void onSetId() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

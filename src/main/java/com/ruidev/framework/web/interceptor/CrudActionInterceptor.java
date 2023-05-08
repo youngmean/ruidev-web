@@ -299,6 +299,7 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 		req.setAttribute("exception", e);
 		req.setAttribute("cause", cause);
 		action.addErrorMsg("tip", msg);
+//		action.addErrorMsg("code", errorId);
 		if(cause != null){
 			action.addErrorMsg("cause", cause.getMessage());
 		}
