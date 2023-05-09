@@ -1,5 +1,6 @@
 package com.ruidev.framework.web.base;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -89,6 +90,8 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 	protected String YML = "xml";
 	protected String YAML = "xml";
 	protected String TIP = "tip";
+	
+	protected String _requestBody;
 
 	// protected static JSONUtil JSON_UTIL = new JSONUtil();
 	protected static XStream XSTREAM = new XStream();
@@ -1259,6 +1262,20 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 			bys = defaultSortBys;
 		}
 		return bys;
+	}
+	
+	public String getRequestBody() throws Exception {
+		if(_requestBody != null) {
+			return _requestBody;
+		}
+		BufferedReader reader = request.getReader();
+		StringBuffer buffer = new StringBuffer();
+		String str = null;
+		while((str = reader.readLine()) != null) {
+			buffer.append(str);
+		}
+		_requestBody = buffer.toString();
+		return _requestBody;
 	}
 
 	public String getId() {
