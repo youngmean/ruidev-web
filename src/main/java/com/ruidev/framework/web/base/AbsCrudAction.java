@@ -1167,11 +1167,12 @@ public abstract class AbsCrudAction<BO extends GenericBo> extends BaseAction {
 
 	public void assertNullOrEmptyError(Object param, String error, int minLen, int maxLen) throws Exception {
 		assertNullOrEmptyError(param, error);
-		if (param.toString().length() < minLen) {
+		int plen = param.toString().trim().length();
+		if (plen < minLen) {
 			throw new BizException(CommonUtil.combineStrings(error, " 长度不能低于", minLen + "", "位"),
 					ErrorType.INVALID_INPUT);
 		}
-		if (param.toString().length() > maxLen) {
+		if (plen > maxLen) {
 			throw new BizException(CommonUtil.combineStrings(error, " 长度不能超过", maxLen + "", "位"),
 					ErrorType.INVALID_INPUT);
 		}

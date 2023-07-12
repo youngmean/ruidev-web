@@ -13,4 +13,5 @@ public interface IUser
 	String getPassword();
 	String getStatus();
 	Date getCreateDate();
+	String getPhone();
 }

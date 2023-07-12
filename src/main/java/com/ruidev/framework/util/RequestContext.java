@@ -439,7 +439,15 @@ public class RequestContext {
 		}else if("hql".equalsIgnoreCase(op) || "sql".equalsIgnoreCase(op)) {
 			hsqlByFilter.append(" ").append(columnStr.substring(4));
 			if(value != null) {
-				_params.add(value);
+				if(value instanceof Object[]) {
+					for(Object __value : (Object[])value) {
+						if(__value != null) {
+							_params.add(__value);
+						}
+					}
+				}else {
+					_params.add(value);
+				}
 			}
 			return 1;
 		}

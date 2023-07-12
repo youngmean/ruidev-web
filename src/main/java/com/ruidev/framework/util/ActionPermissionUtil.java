@@ -218,7 +218,7 @@ public class ActionPermissionUtil {
 					if(LoginContext.isCurrentUserAdmin() || PERMISSION_LOGIN.equals(permissionStr)){
 						return true;
 					}
-					if(!StringUtils.isEmpty(permissionStr) && permissionStr.equals(userInfo.getUser().getUsername())){
+					if(!StringUtils.isEmpty(permissionStr) && (permissionStr.equals(userInfo.getUser().getUsername()) || permissionStr.equals(userInfo.getUser().getPhone()))){
 						return true;
 					}
 				}

@@ -2,6 +2,8 @@ package com.ruidev.framework.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -97,25 +99,29 @@ public class BeanUtils4Web {
 			}
 		}
 		if (met != null) {
-			Object[] realParams = new Object[params.length];
-			for (int _i = 0; _i < params.length; _i++) {
+			List<Object> realP = new ArrayList<Object>();
+			for (int _i = 0, ilen = params.length; _i < ilen; ++_i) {
 				Object paramI = params[_i];
-				if (paramTypes[_i] == paramI.getClass()) {
-					realParams[_i] = paramI;
-				}else if (paramTypes[_i] == String.class) {
-					realParams[_i] = "" + paramI;
-				}else if (paramTypes[_i] == Object[].class) {
-					realParams[_i] = new Object[] {params[_i]};
+				Class paramType = paramTypes[_i];
+				if (paramType == paramI.getClass()) {
+					realP.add(paramI);
+				}else if (paramType == String.class) {
+					realP.add(""+paramI);
+				}else if (paramType == Object[].class) {
+					Object[] realParamsI = new Object[params.length - _i];
+					for(int j = 0, jlen = ilen - _i;j<jlen;++j) {
+						realParamsI[j] = params[_i + j];
+					}
+					realP.add(realParamsI);
+					break;
 				} else {
-					// 常规数据类型都有valueOf，获取这个方法
-				    //System.out.println(paramTypes[_i].getName() + " " + method + " " + obj);
-					Method valueOfMethod = paramTypes[_i].getMethod("valueOf", String.class);
+					Method valueOfMethod = paramType.getMethod("valueOf", String.class);
 					// 构造参数类型
-					realParams[_i] = valueOfMethod.invoke(
-							paramTypes[_i], params[_i]);
+					realP.add(valueOfMethod.invoke(paramType, paramI));
 				}
 			}
-			object = met.invoke(obj, realParams);
+			//object = met.invoke(obj, realParams);
+			object = met.invoke(obj, realP.toArray());
 		} else {
 			String msg = CommonUtil.combineStrings("不存在这个方法，请检查", obj.getClass().getSimpleName(), ".", methodName);
 			log.error(msg);
