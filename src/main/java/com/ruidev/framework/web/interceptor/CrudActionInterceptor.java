@@ -35,7 +35,6 @@ import com.ruidev.framework.exception.BizException;
 import com.ruidev.framework.exception.SysException;
 import com.ruidev.framework.util.LoginContext;
 import com.ruidev.framework.util.RequestContext;
-import com.ruidev.framework.web.base.AbsCrudAction;
 import com.ruidev.framework.web.base.CrudAction;
 
 /**
@@ -69,13 +68,12 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 			ActionContext.getContext().setLocale((Locale) session.get(AuthConstants.USER_SESSION_LOCAL));
 		}
 		HttpServletRequest request = ServletActionContext.getRequest();
-		AbsCrudAction absCrudAction = (AbsCrudAction) action;
-		if (PageConstant.isValidDataType(absCrudAction.getDataType())) {
-			absCrudAction.setResultCode(absCrudAction.getDataType());
-		} else if (PageConstant.REQ_DATA_TYPE_HTML.equals(absCrudAction.getDataType())) {
-			absCrudAction.setResultCode("success");
-		}
 		CrudAction crudAction = (CrudAction) action;
+		if (PageConstant.isValidDataType(crudAction.getDataType())) {
+			crudAction.setResultCode(crudAction.getDataType());
+		} else if (PageConstant.REQ_DATA_TYPE_HTML.equals(crudAction.getDataType())) {
+			crudAction.setResultCode("success");
+		}
 		crudAction.setErrorMsg(null);
 		try {
 			doBeforeAction(invocation);

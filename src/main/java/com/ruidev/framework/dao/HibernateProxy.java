@@ -22,6 +22,7 @@ import com.ruidev.framework.constant.BaseConstants;
 import com.ruidev.framework.entity.CrudEntity;
 import com.ruidev.framework.entity.CrudTenantEntity;
 import com.ruidev.framework.util.CommonUtil;
+import com.ruidev.framework.util.CrudContext;
 import com.ruidev.framework.util.DateTimeUtil;
 import com.ruidev.framework.util.HSqlUtil;
 import com.ruidev.framework.util.LoginContext;
@@ -45,30 +46,29 @@ public class HibernateProxy {
 	}
 
 	public <T> List<T> find(String hql, boolean singleResult, Object... params) {
-		hql = HSqlUtil.getJPAStyledHSql(hql);
+//		hql = HSqlUtil.getJPAStyledHSql(hql);
 		Integer maxResults = null;
 		if(!singleResult && hql.matches(".*limit\\s+\\d+.*")) {
 			String limitStr = hql.replaceAll(".*limit\\s+(\\d+).*", "$1");
 			hql = hql.replaceAll("(.*)\\s+limit\\s+(\\d+)(.*)", "$1 $3");
 			maxResults = Integer.valueOf(limitStr);
 		}
-		List<T> list = null;
-		Query<T> query = getSession().createQuery(hql);// .setCacheable(true);
-		for (Integer i = 0; i < params.length; i++) {
-			String pos = CommonUtil.combineStrings("_", i.toString());
-			if(params[i] instanceof Collection<?>) {
-				query.setParameterList(pos, (Collection<?>)params[i]);
-			}else {
-				query.setParameter(pos, params[i]);
-			}
-		}
+//		Query<T> query = getSession().createQuery(hql);// .setCacheable(true);
+		Query<T> query = createQuery(hql, params);
+//		for (Integer i = 0; i < params.length; i++) {
+//			String pos = CommonUtil.combineStrings("_", i.toString());
+//			if(params[i] instanceof Collection<?>) {
+//				query.setParameterList(pos, (Collection<?>)params[i]);
+//			}else {
+//				query.setParameter(pos, params[i]);
+//			}
+//		}
 		if (singleResult) {
 			query.setMaxResults(1);
 		}else if(maxResults != null && maxResults > 0) {
 			query.setMaxResults(maxResults);
 		}
-		list = query.list();
-		return list;
+		return query.list();
 	}
 
 	public <T> void save(T obj) throws Exception {
@@ -99,11 +99,11 @@ public class HibernateProxy {
 	public int executeUpdate(String s, int type, Object... params) {
 		int c = -1;
 		Query<?> query;
-		s = HSqlUtil.getJPAStyledHSql(s);
+//		s = HSqlUtil.getJPAStyledHSql(s);
 		if (type == 1) {
-			query = getSession().createQuery(s);
+			query = createQuery(s);
 		} else {
-			query = getSession().createNativeQuery(s);
+			query = createNativeQuery(s);
 		}
 		if (params != null) {
 			for (Integer i = 0; i < params.length; i++) {
@@ -121,18 +121,19 @@ public class HibernateProxy {
 	}
 
 	public List<Object[]> getListWithJdbcSql(String sql, boolean singleResult, Object... params) {
-		sql = HSqlUtil.getJPAStyledHSql(sql);
-		Query<Object[]> query = getSession().createNativeQuery(sql);
-		if (params != null) {
-			for (Integer i = 0; i < params.length; i++) {
-				String pos = CommonUtil.combineStrings("_", i.toString());
-				if(params[i] instanceof Collection<?>) {
-            		query.setParameterList(pos, (Collection<?>)params[i]);
-            	}else {
-            		query.setParameter(pos, params[i]);
-            	}
-			}
-		}
+//		sql = HSqlUtil.getJPAStyledHSql(sql);
+//		Query<Object[]> query = getSession().createNativeQuery(sql);
+		Query<Object[]> query = createNativeQuery(sql, params);
+//		if (params != null) {
+//			for (Integer i = 0; i < params.length; i++) {
+//				String pos = CommonUtil.combineStrings("_", i.toString());
+//				if(params[i] instanceof Collection<?>) {
+//            		query.setParameterList(pos, (Collection<?>)params[i]);
+//            	}else {
+//            		query.setParameter(pos, params[i]);
+//            	}
+//			}
+//		}
 		if (singleResult) {
 			query.setFetchSize(1);
 		}
@@ -140,18 +141,19 @@ public class HibernateProxy {
 	}
 	
 	public <T>List<T> getListDataWithJdbcSql(String sql, boolean singleResult, Object... params) {
-		sql = HSqlUtil.getJPAStyledHSql(sql);
-		Query<T> query = getSession().createNativeQuery(sql);
-		if (params != null) {
-			for (Integer i = 0; i < params.length; i++) {
-				String pos = CommonUtil.combineStrings("_", i.toString());
-				if(params[i] instanceof Collection<?>) {
-            		query.setParameterList(pos, (Collection<?>)params[i]);
-            	}else {
-            		query.setParameter(pos, params[i]);
-            	}
-			}
-		}
+//		sql = HSqlUtil.getJPAStyledHSql(sql);
+//		Query<T> query = getSession().createNativeQuery(sql);
+		Query<T> query = createNativeQuery(sql);
+//		if (params != null) {
+//			for (Integer i = 0; i < params.length; i++) {
+//				String pos = CommonUtil.combineStrings("_", i.toString());
+//				if(params[i] instanceof Collection<?>) {
+//            		query.setParameterList(pos, (Collection<?>)params[i]);
+//            	}else {
+//            		query.setParameter(pos, params[i]);
+//            	}
+//			}
+//		}
 		if (singleResult) {
 			query.setFetchSize(1);
 		}
@@ -163,9 +165,11 @@ public class HibernateProxy {
 		Query<T> query = null;
 		Query<?> queryCount = null;
 		int totalRecords = 0;
-		Session session = getSession();
+//		Session session = getSession();
 		String finalSQL = RequestContext.getHsql(sql).replaceAll("\\s{1,}", " ").trim();
-		finalSQL = HSqlUtil.getJPAStyledHSql(finalSQL);
+//		finalSQL = HSqlUtil.getJPAStyledHSql(finalSQL);
+		Object[] boundParams = RequestContext.getFilterParams(params);
+		boolean countData = !RequestContext.getNoCount();
 		if (type == 1) {
 			List<String> onlyFetchProps = RequestContext.getOnlyFetchProperties();
 			if(RequestContext.getTransformerClass() != null && onlyFetchProps != null && finalSQL.trim().startsWith("from")) {
@@ -174,12 +178,13 @@ public class HibernateProxy {
 					props.add(CommonUtil.combineStrings(prop, " as ", prop));
 				}
 				finalSQL = CommonUtil.combineStrings("select ", Strings.join(props, ','), " ", finalSQL);
-				query = session.createQuery(finalSQL).setResultTransformer(Transformers.aliasToBean(RequestContext.getTransformerClass()));
+				query = createQuery(finalSQL, countData, boundParams);
+				query.setResultTransformer(Transformers.aliasToBean(RequestContext.getTransformerClass()));
 			}else {
-				query = session.createQuery(finalSQL);
+				query = createQuery(finalSQL, countData, boundParams);
 			}
-			if(!RequestContext.getNoCount()) {
-				String countSQL = "select count(id) " + finalSQL;
+			if(countData) {
+				String countSQL = CommonUtil.combineStrings("select count(id) ", query.getQueryString());
 				if (!finalSQL.trim().toLowerCase().startsWith("from ")) {
 					String columnSql = finalSQL.substring(0, finalSQL.toLowerCase().indexOf("from")) .replace("select", "").trim();
 					String[] columns = columnSql.split(",");
@@ -189,48 +194,47 @@ public class HibernateProxy {
 					}
 					countSQL = CommonUtil.combineStrings("select count(", firstCol, ") ", finalSQL.substring(finalSQL.toLowerCase().indexOf("from")));
 				}
-				queryCount = getSession().createQuery(countSQL);
+				queryCount = createQuery(countSQL, CrudContext.fetchBoundParams());
 			}
 		} else {
-			query = session.createNativeQuery(finalSQL);
-			if(!RequestContext.getNoCount()) {
-				String countSql = "";
-				if (finalSQL.toLowerCase().contains(" group by ")) {
+			query = createNativeQuery(finalSQL, countData, boundParams);
+			if(countData) {
+				String countSql = "", querySql = query.getQueryString();
+//				if (querySql.toLowerCase().contains(" group by ")) {
 					String aliasStr = null;
 					if (BaseConstants.DB_IS_ORACLE) {
 						aliasStr = "";
 					} else {
 						aliasStr = "as";
 					}
-					countSql = "select count(*) from (" + finalSQL + ") " + aliasStr + " mytable";
-				} else {
-					int fromIndex = finalSQL.toLowerCase().indexOf(" from ");
-					countSql = "select count(*) " + finalSQL.substring(fromIndex);
-				}
-				queryCount = session.createNativeQuery(countSql);
+					countSql = CommonUtil.combineStrings("select count(*) from (", querySql, ") ", aliasStr, " mytable");
+//				} else {
+//					int fromIndex = querySql.toLowerCase().indexOf(" from ");
+//					countSql = CommonUtil.combineStrings("select count(*) ", querySql.substring(fromIndex));
+//				}
+				queryCount = createNativeQuery(countSql, CrudContext.fetchBoundParams());
 			}
 		}
-		Object[] boundParams = RequestContext.getFilterParams(params);
-		Integer j = 0;
-		for (int i = 0; i < boundParams.length; i++) {
-			String pos = CommonUtil.combineStrings("_", j.toString());
-			Object param = boundParams[i];
-			if ("IS_NULL".equals(param) || param == null) {
-				continue;
-			}
-			if (param instanceof Collection<?>) {
-				query.setParameterList(pos, (Collection<?>) param);
-				if (queryCount != null) {
-					queryCount.setParameterList(pos, (Collection<?>) param);
-				}
-			} else {
-				query.setParameter(pos, param);
-				if (queryCount != null) {
-					queryCount.setParameter(pos, param);
-				}
-			}
-			j++;
-		}
+//		Integer j = 0;
+//		for (int i = 0; i < boundParams.length; i++) {
+//			String pos = CommonUtil.combineStrings("_", j.toString());
+//			Object param = boundParams[i];
+//			if ("IS_NULL".equals(param) || param == null) {
+//				continue;
+//			}
+//			if (param instanceof Collection<?>) {
+//				query.setParameterList(pos, (Collection<?>) param);
+//				if (queryCount != null) {
+//					queryCount.setParameterList(pos, (Collection<?>) param);
+//				}
+//			} else {
+//				query.setParameter(pos, param);
+//				if (queryCount != null) {
+//					queryCount.setParameter(pos, param);
+//				}
+//			}
+//			j++;
+//		}
 		if (queryCount != null) {
 			List<?> countRecord = queryCount.list();
 			if (countRecord.size() == 1) {
@@ -353,4 +357,47 @@ public class HibernateProxy {
 		}
 	}
 
+	private <T> Query<T> createNativeQuery(String sql, Object... params) {
+		return createQueryData(sql, true, false, params);
+	}
+	
+	private <T> Query<T> createNativeQuery(String sql, boolean keepBoundParams, Object... params) {
+		return createQueryData(sql, true, keepBoundParams, params);
+	}
+	
+	private <T> Query<T> createQuery(String hql, Object... params) {
+		return createQueryData(hql, false, false, params);
+	}
+	
+	private <T> Query<T> createQuery(String hql, boolean keepBoundParams, Object... params) {
+		return createQueryData(hql, false, keepBoundParams, params);
+	}
+	
+	private <T> Query<T> createQueryData(String hql, boolean isNative, boolean keepBoundParams, Object... params) {
+		hql = CrudContext.getHsql(hql);
+		hql = HSqlUtil.getJPAStyledHSql(hql);
+		Query<T> query = null;
+		try {
+			query = isNative ? getSession().createNativeQuery(hql) : getSession().createQuery(hql);
+		} catch (Exception e) {
+			CrudContext.clearFilters();
+			throw e;
+		}
+		params = CrudContext.getFilterParams(params);
+		if(params == null || params.length < 1)return query;
+		for (int i = 0, ilen = params.length; i < ilen; ++i) {
+			String pos = CommonUtil.combineStrings("_", i);
+			if(params[i] instanceof Collection<?>) {
+				query.setParameterList(pos, (Collection<?>)params[i]);
+			}else {
+				query.setParameter(pos, params[i]);
+			}
+		}
+		if(keepBoundParams) {
+			CrudContext.setBoundParams(params);
+		}
+		CrudContext.clearFilters();
+		return query;
+	}
+	
 }

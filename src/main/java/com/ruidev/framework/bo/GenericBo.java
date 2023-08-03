@@ -3,6 +3,7 @@ package com.ruidev.framework.bo;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -20,6 +21,7 @@ import com.ruidev.framework.entity.CrudEntity;
 import com.ruidev.framework.entity.CrudTenantEntity;
 import com.ruidev.framework.exception.BizException;
 import com.ruidev.framework.util.CommonUtil;
+import com.ruidev.framework.util.CrudContext;
 import com.ruidev.framework.util.LoginContext;
 import com.ruidev.framework.util.RequestUtil;
 
@@ -206,7 +208,6 @@ public class GenericBo {
 		return data;
 	}
 
-
 	public int executeUpdateHql(String queryString, Object... values) {
 		return dao.executeUpdate(queryString, 1, values);
 	}
@@ -221,5 +222,17 @@ public class GenericBo {
 
 	protected Session getCurrentSession() {
 		return dao.getSession();
+	}
+	
+	public GenericBo addCrudFilter(String key, Object value) {
+		CrudContext.addFilter(key, value);
+		return this;
+	}
+	
+	public GenericBo addCrudFilters(Map<String, Object> filters) {
+		for(String key : filters.keySet()) {
+			CrudContext.addFilter(key, filters.get(key));
+		}
+		return this;
 	}
 }
