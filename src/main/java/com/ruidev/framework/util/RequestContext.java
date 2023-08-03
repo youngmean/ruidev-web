@@ -347,12 +347,44 @@ public class RequestContext {
 		return null;
 	}
 	
+	public static List<Integer> getIntegerParams(String name){
+		return getIntegerValues(getParam(name));
+	}
+	
+	public static List<Integer> getIntegerValues(String vals){
+		if(vals == null)return null;
+		List<Integer> values = new ArrayList<Integer>();
+		for(String val : vals.split(",")) {
+			try {
+				values.add(Integer.valueOf(val));
+			} catch (NumberFormatException e) {
+			}
+		}
+		return values.size() < 1 ? null : values;
+	}
+	
 	public static Long getLongParam(String name){
 		try {
 			return Long.valueOf(getParam(name));
 		} catch (NumberFormatException e) {
 		}
 		return null;
+	}
+	
+	public static List<Long> getLongParams(String name){
+		return getLongValues(getParam(name));
+	}
+	
+	public static List<Long> getLongValues(String vals){
+		if(vals == null)return null;
+		List<Long> values = new ArrayList<Long>();
+		for(String val : vals.split(",")) {
+			try {
+				values.add(Long.valueOf(val));
+			} catch (NumberFormatException e) {
+			}
+		}
+		return values.size() < 1 ? null : values;
 	}
 	
 	public static Double getDoubleParam(String name){
