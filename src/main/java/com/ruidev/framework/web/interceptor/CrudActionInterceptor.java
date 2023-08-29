@@ -55,7 +55,6 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 	/** 是否分页. */
 	private boolean isListPage = false;
 
-	@SuppressWarnings({"rawtypes"})
 	public String intercept(ActionInvocation invocation) throws Exception {
 		Object action = invocation.getAction();
 		if(!(action instanceof CrudAction)){
@@ -291,12 +290,17 @@ public class CrudActionInterceptor extends AbstractInterceptor implements PreRes
 			if("/user/login".equals(action.getActionPath())) {
 				result = "login";
 			}
+			if(e instanceof BizException) {
+				String tip = ((BizException)e).getTip();
+				if(tip != null) {
+					action.addErrorMsg("tip", tip);
+				}
+			}
 		}
 		Throwable cause = ExceptionUtils.getRootCause(e);
 		req.setAttribute("error", msg);
 		req.setAttribute("exception", e);
 		req.setAttribute("cause", cause);
-		action.addErrorMsg("tip", msg);
 //		action.addErrorMsg("code", errorId);
 		if(cause != null){
 			action.addErrorMsg("cause", cause.getMessage());

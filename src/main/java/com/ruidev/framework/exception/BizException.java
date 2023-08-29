@@ -6,6 +6,8 @@ package com.ruidev.framework.exception;
 public class BizException extends BaseException {
 
 	private static final long serialVersionUID = 1L;
+	
+	protected String tip;
 
 	/**
 	 * 构造函数：出错信息码
@@ -36,4 +38,13 @@ public class BizException extends BaseException {
 	public BizException(String msg) {
 		super(msg);
 	}
+
+	public String getTip() {
+		return tip;
+	}
+
+	public void setTip(String tip) {
+		this.tip = tip;
+	}
+	
 }

@@ -296,4 +296,11 @@ public abstract class EntityBo<E extends CrudEntity> extends GenericBo {
     	exp.setErrorId(errorId);
     	throw exp;
     }
+    
+    public void throwBizExceptionWithErrorIdAndTip(int errorId, String tip, Object...strings) throws BizException {
+    	BizException exp = new BizException(CommonUtil.combineStrings(strings));
+    	exp.setTip(tip);
+    	exp.setErrorId(errorId);
+    	throw exp;
+    }
 }

@@ -2,6 +2,7 @@ package com.ruidev.framework.bo;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -121,17 +122,46 @@ public class GenericBo {
 	public <T> List<T> getAllData(String sql, Object... params) {
 		return dao.getAll(sql, params);
 	}
+	
+	public <T> Map<T, Object[]> getAllDataGroupByColumn(int columnIndex, String sql, Object... params) {
+		List<Object[]> data = dao.getAll(sql, params);
+		return getAllDataGroupByColumn(columnIndex, data);
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected <T> Map<T, Object[]> getAllDataGroupByColumn(int columnIndex, List<Object[]> data){
+		Map<T, Object[]> results = new HashMap<T, Object[]>();
+		data.forEach(dat->{
+			results.put((T)dat[columnIndex], dat);
+		});
+		return results;
+	}
 
 	public <T> List<T> getListPageData(String sql, Object... params) throws Exception {
 		return dao.getListByPagination(sql, 1, params);
+	}
+	
+	public <T> Map<T, Object[]> getListPageDataGroupByColumn(int columnIndex, String sql, Object... params) throws Exception {
+		List<Object[]> data = dao.getListByPagination(sql, 1, params);
+		return getAllDataGroupByColumn(columnIndex, data);
 	}
 
 	public List<Object[]> getJdbcListPage(String sql, Object... params) throws Exception {
 		return dao.getListByPagination(sql, 2, params);
 	}
+	
+	public Map<Object, Object[]> getJdbcListPageGroupByColumn(int columnIndex, String sql, Object... params) throws Exception {
+		List<Object[]> data = dao.getListByPagination(sql, 2, params);
+		return getAllDataGroupByColumn(columnIndex, data);
+	}
 
 	public List<Object[]> getJdbcList(String sql, Object... params) {
 		return dao.getJdbcList(sql, params);
+	}
+	
+	public Map<Object, Object[]> getJdbcListGroupByColumn(int columnIndex, String sql, Object... params) {
+		List<Object[]> data = dao.getJdbcList(sql, params);
+		return getAllDataGroupByColumn(columnIndex, data);
 	}
 
 	public void removeObjectFromSession(Object obj) {
