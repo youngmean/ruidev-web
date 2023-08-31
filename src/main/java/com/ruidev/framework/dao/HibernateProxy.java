@@ -143,7 +143,7 @@ public class HibernateProxy {
 	public <T>List<T> getListDataWithJdbcSql(String sql, boolean singleResult, Object... params) {
 //		sql = HSqlUtil.getJPAStyledHSql(sql);
 //		Query<T> query = getSession().createNativeQuery(sql);
-		Query<T> query = createNativeQuery(sql);
+		Query<T> query = createNativeQuery(sql, params);
 //		if (params != null) {
 //			for (Integer i = 0; i < params.length; i++) {
 //				String pos = CommonUtil.combineStrings("_", i.toString());
