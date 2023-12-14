@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,7 +82,7 @@ public class RequestContext {
 	public static Map<String, Object> getFilters(){
 		Map<String, Object> _filters = filters.get();
 		if(_filters == null){
-			_filters = new HashMap<String, Object>();
+			_filters = new LinkedHashMap<String, Object>();
 			filters.set(_filters);
 		}
 		return filters.get();
@@ -92,8 +91,11 @@ public class RequestContext {
 	public static void addCrudFilter(String key, Object value){
 		Map<String, Object> _filters = filters.get();
 		if(_filters == null){
-			_filters = new HashMap<String, Object>();
+			_filters = new LinkedHashMap<String, Object>();
 			filters.set(_filters);
+		}
+		if(value instanceof String) {
+			value = value.toString().trim();
 		}
 		_filters.put(key, value);
 	}
@@ -517,10 +519,15 @@ public class RequestContext {
 	
 	public static String getHsql(String hsql) {
 		StringBuffer hsqlByFilter = new StringBuffer();
-		String groupByHql = null;
-		int lastIndexOfGroupByHql = hsql.lastIndexOf("group by");
+		StringBuffer groupByHql = null, orderByHql = null;
+		int lastIndexOfOrderByHql = hsql.lastIndexOf(" order by ");
+		if(lastIndexOfOrderByHql > 0) {
+			orderByHql = new StringBuffer(hsql.substring(lastIndexOfOrderByHql, hsql.length()));
+			hsql = hsql.substring(0, lastIndexOfOrderByHql);
+		}
+		int lastIndexOfGroupByHql = hsql.lastIndexOf(" group by ");
 		if(lastIndexOfGroupByHql > 0) {
-			groupByHql = hsql.substring(lastIndexOfGroupByHql, hsql.length());
+			groupByHql = new StringBuffer(hsql.substring(lastIndexOfGroupByHql, hsql.length()));
 			hsql = hsql.substring(0, lastIndexOfGroupByHql);
 		}
 		hsqlByFilter.append(hsql);
@@ -567,15 +574,15 @@ public class RequestContext {
 		}
 		List<String> groups = groupbys.get();
 		if(groups != null && groups.size() > 0) {
-			if(!hsqlByFilter.toString().contains("group by")) {
-				hsqlByFilter.append(" group by ");
+			if(groupByHql == null) {
+				groupByHql = new StringBuffer(" group by ");
 			}
 			Iterator<String> keyIt = groups.iterator();
 			while(keyIt.hasNext()) {
 				String orderKey = keyIt.next();
-				hsqlByFilter.append(" ").append(orderKey);
+				groupByHql.append(" ").append(orderKey);
 				if(keyIt.hasNext()) {
-					hsqlByFilter.append(",");
+					groupByHql.append(",");
 				}
 			}
 		}
@@ -584,17 +591,20 @@ public class RequestContext {
 		}
 		Map<String, String> orders = orderbys.get();
 		if(orders != null && orders.size() > 0) {
-			if(!hsqlByFilter.toString().contains("order by")) {
-				hsqlByFilter.append(" order by ");
+			if(orderByHql == null) {
+				orderByHql = new StringBuffer(" order by ");
 			}
 			Iterator<String> keyIt = orders.keySet().iterator();
 			while(keyIt.hasNext()) {
 				String orderKey = keyIt.next();
-				hsqlByFilter.append(" ").append(orderKey).append(" ").append(orders.get(orderKey));
+				orderByHql.append(" ").append(orderKey).append(" ").append(orders.get(orderKey));
 				if(keyIt.hasNext()) {
-					hsqlByFilter.append(",");
+					orderByHql.append(",");
 				}
 			}
+		}
+		if(orderByHql != null) {
+			hsqlByFilter.append(" ").append(orderByHql);
 		}
 		return hsqlByFilter.toString();
 	}

@@ -1,7 +1,6 @@
 package com.ruidev.framework.util;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +17,9 @@ public class CrudContext {
 	private static final ThreadLocal<ArrayList<String>> groupbys = new ThreadLocal<ArrayList<String>>();
 	private static final ThreadLocal<Map<String, String>> orderbys = new ThreadLocal<Map<String, String>>();
 	private static final ThreadLocal<Object[]> boundParams = new ThreadLocal<Object[]>();
+	private static final ThreadLocal<Boolean> ignoreWhere = new ThreadLocal<Boolean>();
+	
+	
 	
 	public static void setBoundParams(Object[] params) {
 		boundParams.set(params);
@@ -33,6 +35,10 @@ public class CrudContext {
 		noCount.set(flag);
 	}
 	
+	public static void setIgnoreWhere(boolean flag) {
+		ignoreWhere.set(flag);
+	}
+	
 	public static boolean getNoCount() {
 		Boolean flag = noCount.get();
 		return flag != null && flag.booleanValue();
@@ -41,7 +47,7 @@ public class CrudContext {
 	public static Map<String, Object> getFilters(){
 		Map<String, Object> _filters = filters.get();
 		if(_filters == null){
-			_filters = new HashMap<String, Object>();
+			_filters = new LinkedHashMap<String, Object>();
 			filters.set(_filters);
 		}
 		return filters.get();
@@ -50,7 +56,7 @@ public class CrudContext {
 	public static void addCrudFilter(String key, Object value){
 		Map<String, Object> _filters = filters.get();
 		if(_filters == null){
-			_filters = new HashMap<String, Object>();
+			_filters = new LinkedHashMap<String, Object>();
 			filters.set(_filters);
 		}
 		_filters.put(key, value);
@@ -136,6 +142,7 @@ public class CrudContext {
 		params.remove();
 		orderbys.remove();
 		filters.remove();
+		ignoreWhere.remove();
 	}
 	
 	public static void clearParams() {
@@ -223,17 +230,22 @@ public class CrudContext {
 	
 	public static String getHsql(String hsql) {
 		StringBuffer hsqlByFilter = new StringBuffer();
-		String groupByHql = null;
-		int lastIndexOfGroupByHql = hsql.lastIndexOf("group by");
+		StringBuffer groupByHql = null, orderByHql = null;
+		int lastIndexOfOrderByHql = hsql.lastIndexOf(" order by ");
+		if(lastIndexOfOrderByHql > 0) {
+			orderByHql = new StringBuffer(hsql.substring(lastIndexOfOrderByHql, hsql.length()));
+			hsql = hsql.substring(0, lastIndexOfOrderByHql);
+		}
+		int lastIndexOfGroupByHql = hsql.lastIndexOf(" group by ");
 		if(lastIndexOfGroupByHql > 0) {
-			groupByHql = hsql.substring(lastIndexOfGroupByHql, hsql.length());
+			groupByHql = new StringBuffer(hsql.substring(lastIndexOfGroupByHql, hsql.length()));
 			hsql = hsql.substring(0, lastIndexOfGroupByHql);
 		}
 		hsqlByFilter.append(hsql);
 		Map<String, Object> filters = getFilters();
 		Set<String> columns = filters.keySet();
 		if(columns.size() > 0) {
-			if(hsql.contains("where")) {
+			if(hsql.contains("where") || Boolean.TRUE.equals(ignoreWhere.get())) {
 				hsqlByFilter.append(" and ");
 			}else {
 				hsqlByFilter.append(" where ");
@@ -273,15 +285,20 @@ public class CrudContext {
 		}
 		List<String> groups = groupbys.get();
 		if(groups != null && groups.size() > 0) {
-			if(!hsqlByFilter.toString().contains("group by")) {
-				hsqlByFilter.append(" group by ");
+//			if(!hsqlByFilter.toString().contains("group by")) {
+//				hsqlByFilter.append(" group by ");
+//			}
+			if(groupByHql == null) {
+				groupByHql = new StringBuffer(" group by ");
 			}
 			Iterator<String> keyIt = groups.iterator();
 			while(keyIt.hasNext()) {
 				String orderKey = keyIt.next();
-				hsqlByFilter.append(" ").append(orderKey);
+//				hsqlByFilter.append(" ").append(orderKey);
+				groupByHql.append(" ").append(orderKey);
 				if(keyIt.hasNext()) {
-					hsqlByFilter.append(",");
+//					hsqlByFilter.append(",");
+					groupByHql.append(",");
 				}
 			}
 		}
@@ -290,17 +307,25 @@ public class CrudContext {
 		}
 		Map<String, String> orders = orderbys.get();
 		if(orders != null && orders.size() > 0) {
-			if(!hsqlByFilter.toString().contains("order by")) {
-				hsqlByFilter.append(" order by ");
+//			if(!hsqlByFilter.toString().contains("order by")) {
+//				hsqlByFilter.append(" order by ");
+//			}
+			if(orderByHql == null) {
+				orderByHql = new StringBuffer(" order by ");
 			}
 			Iterator<String> keyIt = orders.keySet().iterator();
 			while(keyIt.hasNext()) {
 				String orderKey = keyIt.next();
-				hsqlByFilter.append(" ").append(orderKey).append(" ").append(orders.get(orderKey));
+//				hsqlByFilter.append(" ").append(orderKey).append(" ").append(orders.get(orderKey));
+				orderByHql.append(" ").append(orderKey).append(" ").append(orders.get(orderKey));
 				if(keyIt.hasNext()) {
-					hsqlByFilter.append(",");
+//					hsqlByFilter.append(",");
+					orderByHql.append(",");
 				}
 			}
+		}
+		if(orderByHql != null) {
+			hsqlByFilter.append(" ").append(orderByHql);
 		}
 		return hsqlByFilter.toString();
 	}

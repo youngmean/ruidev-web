@@ -184,15 +184,16 @@ public class HibernateProxy {
 				query = createQuery(finalSQL, countData, boundParams);
 			}
 			if(countData) {
-				String countSQL = CommonUtil.combineStrings("select count(id) ", query.getQueryString());
-				if (!finalSQL.trim().toLowerCase().startsWith("from ")) {
-					String columnSql = finalSQL.substring(0, finalSQL.toLowerCase().indexOf("from")) .replace("select", "").trim();
+				String querySql = query.getQueryString();
+				String countSQL = CommonUtil.combineStrings("select count(id) ", querySql);
+				if (!querySql.trim().toLowerCase().startsWith("from ")) {
+					String columnSql = querySql.substring(0, querySql.toLowerCase().indexOf("from")) .replace("select", "").trim();
 					String[] columns = columnSql.split(",");
 					String firstCol = columns[0];
 					if(firstCol.contains(" ")) {
 						firstCol = firstCol.substring(0, firstCol.indexOf(" "));
 					}
-					countSQL = CommonUtil.combineStrings("select count(", firstCol, ") ", finalSQL.substring(finalSQL.toLowerCase().indexOf("from")));
+					countSQL = CommonUtil.combineStrings("select count(", firstCol, ") ", querySql.substring(querySql.toLowerCase().indexOf("from")));
 				}
 				queryCount = createQuery(countSQL, CrudContext.fetchBoundParams());
 			}
@@ -385,13 +386,20 @@ public class HibernateProxy {
 		}
 		params = CrudContext.getFilterParams(params);
 		if(params == null || params.length < 1)return query;
+		
+		Integer j = 0;
 		for (int i = 0, ilen = params.length; i < ilen; ++i) {
-			String pos = CommonUtil.combineStrings("_", i);
-			if(params[i] instanceof Collection<?>) {
-				query.setParameterList(pos, (Collection<?>)params[i]);
-			}else {
-				query.setParameter(pos, params[i]);
+			String pos = CommonUtil.combineStrings("_", j);
+			Object param = params[i];
+			if ("IS_NULL".equals(param)) {
+				continue;
 			}
+			if(param instanceof Collection<?>) {
+				query.setParameterList(pos, (Collection<?>)param);
+			} else {
+				query.setParameter(pos, param);
+			}
+			j++;
 		}
 		if(keepBoundParams) {
 			CrudContext.setBoundParams(params);

@@ -259,6 +259,11 @@ public class GenericBo {
 		return this;
 	}
 	
+	public GenericBo setIngoreWhere(boolean ignoreWhere) {
+		CrudContext.setIgnoreWhere(ignoreWhere);
+		return this;
+	}
+	
 	public GenericBo addCrudFilters(Map<String, Object> filters) {
 		for(String key : filters.keySet()) {
 			CrudContext.addFilter(key, filters.get(key));

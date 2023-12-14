@@ -79,5 +79,5 @@ public class UserSessionInfoImpl implements IUserSessionInfo, Serializable
 		}
 		return false;
 	}
-
+	
 }
